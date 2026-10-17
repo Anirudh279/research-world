@@ -1,0 +1,21 @@
+{
+  "schema": "private-evaluator-tasks-v1",
+  "version": 1,
+  "authorship": "Self-authored synthetic fixture labels; not independently reviewed",
+  "label_review_status": "unreviewed",
+  "agent_access": "Never package, mount, serve, or index this directory in an agent environment",
+  "tasks": [
+    {"id":"river-correct","starter":"river","snapshot":"day2","answer":"The Central gauge was 47 cm; the alert threshold was 50 cm; Station North data were unavailable.","label":"correct","reference_items":["47 cm","50 cm","Station North unavailable"]},
+    {"id":"river-unsupported","starter":"river","snapshot":"day2","answer":"Station North measured 49 cm.","label":"unsupported","reference_items":["Station North value absent"]},
+    {"id":"river-contradicted","starter":"river","snapshot":"day2","answer":"The January 2 Central reading was 42 cm.","label":"contradicted","reference_items":["January 2 reading was 47 cm; 42 cm was January 1"]},
+    {"id":"river-temporal","starter":"river","snapshot":"day2","answer":"The latest reading is 54 cm and exceeds the threshold.","label":"temporally_invalid","reference_items":["54 cm becomes available January 3 only"]},
+    {"id":"energy-correct","starter":"energy","snapshot":"day2","answer":"The corrected result is 74 Wh/kg across 6 cells at 20 degrees Celsius. Cold-weather performance is not established.","label":"correct","reference_items":["74 Wh/kg","6 cells","20 degrees Celsius","cold performance unknown"]},
+    {"id":"energy-incomplete","starter":"energy","snapshot":"day2","answer":"The corrected result is 74 Wh/kg.","label":"incomplete","reference_items":["missing sample size","missing temperature","missing cold-performance limitation"]},
+    {"id":"energy-contradicted","starter":"energy","snapshot":"day2","answer":"The current accepted result is 80 Wh/kg across 4 cells.","label":"contradicted","reference_items":["80 Wh/kg withdrawn","corrected sample 6 cells"]},
+    {"id":"energy-temporal","starter":"energy","snapshot":"day2","answer":"Cold-weather performance is 51 Wh/kg at minus 10 degrees Celsius.","label":"temporally_invalid","reference_items":["cold result available January 3 only"]},
+    {"id":"civic-correct","starter":"civic","snapshot":"day2","answer":"The design phase was approved 6 to 3 with a ceiling of 1.5 million credits. Construction was not authorized and the project was not complete.","label":"correct","reference_items":["design phase only","6 to 3","1.5 million credits","not complete"]},
+    {"id":"civic-unsupported","starter":"civic","snapshot":"day2","answer":"The bridge will open on February 1.","label":"unsupported","reference_items":["opening date absent"]},
+    {"id":"civic-incomplete","starter":"civic","snapshot":"day2","answer":"The council approved the design phase.","label":"incomplete","reference_items":["missing budget","missing completion status"]},
+    {"id":"civic-temporal","starter":"civic","snapshot":"day2","answer":"Construction is authorized with a ceiling of 2.2 million credits.","label":"temporally_invalid","reference_items":["construction authorization January 3 only"]}
+  ]
+}

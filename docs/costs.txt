@@ -1,0 +1,125 @@
+MONETARY ADMISSION FOR HOSTED CALLS
+
+Default hosted collection/research workflows reserve through ProviderAdmission
+before model/search transmission, including API, MCP and scheduler entry points.
+Native client inference/search is outside this server and is NOT capped here.
+Direct capture storage/hosting costs are not metered by this API-dollar ledger.
+Custom Python workflows can explicitly inject cost_admission=None for offline
+fixtures; such callers are outside the default enforcement boundary.
+
+Configure the same data directory as the server:
+  web-research-sim costs --data data --allocate-micro-usd 1000000
+  web-research-sim costs --data data
+
+Supply data/cost-policy.json separately. Required JSON shape:
+  schema: provider-cost-policy-v1
+  expires_at: an ISO 8601 timestamp with timezone
+  bounds: a list of objects with these fields:
+    kind: model_calls or search_calls
+    provider: exact configured provider
+    model: exact model ID; omit for search
+    max_request_bytes: maximum encoded workflow-request bytes, 1..4194304
+    max_output_tokens: 2048 for model calls (the adapter default)
+    max_cost_micro_usd: positive per-call maximum
+    operator_reviewed: true
+    basis: pricing source and upper-bound calculation, at most 300 characters
+
+Do not copy invented prices. Review actual provider/account pricing, maximum
+input size including adapter-added instructions and framing, maximum output,
+all chargeable reasoning/tool components, and search request parameters. If a
+conservative bound cannot be established, do not enable that provider. The gate
+checks the configured envelope; it cannot independently prove the operator's
+pricing assertion. This is a conditional application cap, not a provider billing
+guarantee. Policy digest and calculation are retained with each reservation.
+
+Missing, expired, unmatched or oversized policies/requests stop before provider
+transmission. No zero-dollar inference from free credits. Successful responses
+record usage but retain the full bound because token counts are not invoices.
+Timeouts also retain the bound. A rejected monetary admission may already have
+consumed its conservative call-count slot; it never authorizes a provider retry.
+Call-count and monetary ledgers are separate durable stores, so a crash between
+them can retain unused capacity. This is conservative, not an exactly atomic
+cross-ledger transaction. The user-approved test budget is not automatically
+allocated by installing this feature.
+
+The unit is an integer USD microdollar: 1,000,000 units = USD 1. No float money,
+implicit currency conversion, guessed model prices, or subscription-to-dollar
+conversion is performed. A workspace directory has one immutable allocation in
+costs.sqlite3. allocate(same_amount) can be repeated; changing the amount is
+rejected. Deleting or moving the database defeats its history and is not a reset
+operation. This is application admission control, not a provider-side account cap.
+
+Example with a deliberately hypothetical bound (not provider pricing):
+
+  ledger = CostLedger(workspace_directory)
+  ledger.allocate(1_000_000)
+  ticket = ledger.reserve(
+      'logical-operation-1', provider='example', model='example-model',
+      request={'canonical': 'provider request, excluding credentials'},
+      max_cost_micro_usd=20_000,
+      bound_basis='Explicit test bound; not a real provider price')
+  # ONLY AFTER reserve returns successfully may the caller transmit once.
+  # On verified completion with provider billing evidence:
+  ledger.settle('logical-operation-1', actual_cost_micro_usd=12_000,
+                usage={'input_tokens': 100, 'output_tokens': 50})
+
+Admission binds operation key, provider, model, request fingerprint, maximum cost
+and the stated basis for that maximum. Raw prompts/credentials are not stored by
+this component; only the caller-supplied request's hash is retained. Do not place
+secrets in provider/model labels, bound_basis or usage metadata either.
+
+Unknown bounds are refused. An explicit zero bound is allowed only as a caller
+assertion that the operation cannot incur a monetary charge; it is not inferred
+from a free-credit balance, subscription or missing price. The component cannot
+verify a bound's pricing assumptions. The operator must establish and
+version an actual upper bound from enforced input/output/tool limits, applicable
+pricing and every billable component. If it cannot, it must refuse transmission.
+
+Reservations use SQLite BEGIN IMMEDIATE, persist before return, and immediately
+consume the maximum. Concurrent processes cannot collectively admit above the
+available allocation. Existing operation keys cannot authorize another execution:
+identical input raises cost_operation_consumed; changed input raises
+cost_operation_conflict. Observe operation(key) after uncertainty. A process crash
+leaves its full reservation consumed. There is no automatic retry/refund/recovery.
+
+settle is one immutable terminal report:
+- completed/failed plus verified actual cost <= bound charges that actual amount
+  and releases only the confirmed difference.
+- unknown actual cost retains the full maximum, regardless of outcome.
+- uncertain retains at least the full maximum, even if a partial observed cost is
+  supplied. It cannot later be changed into a refundable result in this version.
+- actual cost above the bound is recorded as overspent; the full actual amount is
+  charged, an overspend diagnostic is retained, and ALL later admission is blocked,
+  even if the workspace allocation still has room. An actual provider charge
+  cannot be undone by a local ledger. summary shows allocation overrun explicitly.
+
+Usage fields are independent metadata:
+  input_tokens, output_tokens: integer or null
+  search_credits: integer or null
+  subscription_usage: provider-specific JSON object or null
+
+Omitted values remain null (unknown), not zero. Search credits, tokens, native
+subscription usage and dollar charges are not added together. Native agent model
+usage outside the server remains unobserved unless explicitly reported; a local
+tool call costing no hosted model dollars does not establish free native inference.
+
+Test command:
+  uv run pytest -q tests/test_costs.py
+
+Tests exercise multiple ledger instances racing to reserve or settle, duplicate
+request identities, crash persistence, unknown/uncertain cost retention, immutable
+allocation, explicit zero, provider bound breaches and distinct usage metadata.
+No external API, model, pricing service or subscription is called.
+
+PRE-TRANSMISSION RECHECK
+After durable admission, the default workflow rechecks the reserved request,
+provider/model identity, policy digest and policy expiry immediately before
+calling its adapter. Expiry is checked after potentially blocking storage reads.
+A rejected check retains its reservations and does not invoke the adapter.
+
+This boundary assumes the trusted workflow constructs a request and matching
+adapter call. Python extensions that supply an unrelated callable can violate
+that association; ProviderAdmission is not a sandbox for arbitrary Python.
+Use the default hosted entry points for the reviewed enforcement path. An
+adapter-bound wire envelope remains required before claiming enforcement over
+untrusted/custom adapter implementations.

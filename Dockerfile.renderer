@@ -1,0 +1,12 @@
+# Initial measured target: Linux ARM64. Other architectures are not certified.
+FROM mcr.microsoft.com/playwright@sha256:941cc91e5022880ac1d14ae90b476b624deb6399dbbc28d612d5d5bd7928fcbd
+COPY renderer/package.json renderer/package-lock.json /opt/render/
+RUN npm ci --prefix /opt/render --ignore-scripts --no-audit --no-fund
+COPY renderer/repair-notice.py /opt/render/repair-notice.py
+RUN python3 /opt/render/repair-notice.py
+COPY LICENSE /app/LICENSE
+COPY src /app/src
+ENV PYTHONPATH=/app/src PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
+USER pwuser
+WORKDIR /tmp
+CMD ["node", "--version"]

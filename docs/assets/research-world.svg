@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="360" viewBox="0 0 1200 360" role="img" aria-label="Research World: Capture evidence. Freeze a world. Compare agents.">
+<rect width="1200" height="360" rx="20" fill="#101c27"/>
+<text x="56" y="66" fill="#69e3bf" font-family="system-ui,sans-serif" font-size="18" letter-spacing="3">SMALL THEORY LABS / RESEARCH WORLD</text>
+<text x="56" y="126" fill="#f3f6f9" font-family="system-ui,sans-serif" font-size="40" font-weight="700">Same evidence. Inspectable experiments.</text>
+<g font-family="system-ui,sans-serif"><rect x="56" y="174" width="330" height="124" rx="12" fill="#1c3040"/><rect x="435" y="174" width="330" height="124" rx="12" fill="#1c3040"/><rect x="814" y="174" width="330" height="124" rx="12" fill="#1c3040"/>
+<g fill="#69e3bf" font-size="24" font-weight="600"><text x="80" y="216">01  Capture</text><text x="459" y="216">02  Freeze</text><text x="838" y="216">03  Compare</text></g>
+<g fill="#d7e1e8" font-size="18"><text x="80" y="258">Sources, bytes, provenance</text><text x="459" y="258">One snapshot and cutoff</text><text x="838" y="258">Answers and evidence traces</text></g></g></svg>

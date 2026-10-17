@@ -1,0 +1,28 @@
+READING LONG ARCHIVED SOURCES
+
+Native sessions and the supplied hosted research agent support:
+  {"action":"open","document_id":"DOCUMENT_ID","offset":16000,"max_chars":16000}
+
+Offsets count Unicode characters, not UTF-8 bytes. Default offset is zero;
+max_chars defaults to 16000 and must be from 1 to 20000. Responses contain
+text, offset, total_chars, next_offset, text_truncated and read_version
+(character-window-v1), plus capture times and original/text hashes.
+Continue with next_offset until it is null. An offset equal to total_chars
+returns an empty final window; an offset beyond the end is an explicit error.
+
+HTTP and Python clients can use:
+  GET /api/snapshots/SNAPSHOT/documents/DOCUMENT/read?offset=16000&max_chars=16000
+  client.get(path, params={"offset":16000,"max_chars":16000})
+
+The existing full-document endpoint remains available for archive inspection.
+The standalone MCP frozen_open already provides bounded windows. Native session
+calls must go through native_session_tool for their evidence exposure to count
+in a submitted session. Direct reads outside that session are not silently
+credited as observed evidence. Each new session window consumes one tool call;
+repeat the same operation key and arguments to observe an earlier response.
+
+Citations must match an exact quote inside a returned evidence fragment.
+Knowing a document ID does not authorize quotes from unseen later sections.
+Adjacent windows are not automatically stitched for citation validation: use an
+overlapping window when a quote crosses a boundary. All reads use the same
+manifest and verified stored objects, with no live-page fallback.

@@ -1,0 +1,69 @@
+Provider implementation status — 2026-10-15
+
+Implemented adapters (offline contract tests only; NOT live-verified):
+OpenAI Responses: OPENAI_API_KEY, caller-selected model, text JSON mode, actual
+served model and usage, no tools, no automatic retries, store=false.
+Anthropic Messages: ANTHROPIC_API_KEY, caller-selected model, JSON instruction,
+strict returned JSON parsing, system prompt separated, actual model/usage.
+Scrappa Search Light: SCRAPPA_API_KEY, GET query/num/page, organic result rank,
+original JSON retained. One page, 10 or 20 requested, user limit 1–20.
+Brave Web Search: BRAVE_API_KEY, GET q/count, web result descriptions and ranks,
+original JSON retained. No inference account is presumed to include search.
+
+No external calls or user credentials were used for these tests. Subscription
+access is not implemented by these embedded adapters; native client integration
+is a separate product path. Unsupported models/JSON mode fail visibly. Missing
+usage is an empty object (unknown, never zero). Price schedules are not embedded;
+caller must reserve a conservative explicit budget before invoking an adapter.
+No HTTP or model automatic retries. A transport exception is an uncertain outcome;
+callers must persist reservations before calls, and must not blindly retry.
+
+Default static capture: raw uncompressed response bytes, response headers/status, extraction,
+final/requested URL, UTC completion timestamp, HTTP anchor links. Public IPs only,
+ports 80/443 only, exact socket IP pinned after DNS validation, TLS verifies the
+original hostname. Each redirect revalidates destination; no environment proxies.
+All DNS answers must be public. Mixed public/private answers fail closed. No cookies,
+credentials, browser execution or subresource fetching. Static HTML, plain text,
+CSV, JSON and text-bearing PDF. PDF uses pinned pypdf in a separate process with
+20-second wall timeout, 10-second CPU limit, 200-page/4MiB text limits; Linux also
+enforces a 512MiB address-space limit. macOS does not enforce that memory limit.
+No OCR; image-only, encrypted or malformed PDFs produce explicit extraction gaps.
+Original complete responses survive extraction failure, with empty text and an
+error status. HTML extraction is basic,
+not a rendered DOM. Page content remains untrusted. Raw body bytes are HTTP entity
+bytes after transfer framing, not a packet capture. Repeated headers collapse;
+compression other than identity fails. Unsupported complete responses are archived
+with extraction_status=failed, not represented as usable extracted evidence.
+The default workflow now commits complete original response bytes and a recovery
+receipt before extraction. Incomplete transport responses still need richer
+failed-attempt preservation; they are not complete archived pages.
+The low-level DNS resolver is OS-managed and socket timeouts are per operation.
+The default workflow wraps capture in a fresh bounded worker with a 30-second
+outer deadline covering startup, DNS, redirects, storage and extraction, plus
+bounded process cleanup. See docs/bounded-static-capture.txt for exact limits
+and platform caveats. That reliability boundary is not an OS security sandbox;
+full host egress containment remains a deployment gate.
+
+Sources actually fetched (official, 2026-10-15):
+https://developers.openai.com/api/docs/guides/structured-outputs?api-mode=responses
+https://platform.claude.com/docs/en/api/messages/create
+https://api-dashboard.search.brave.com/app/documentation/web-search/codes
+https://scrappa.co/docs
+https://pypdf.readthedocs.io/en/stable/user/extract-text.html
+Scrappa request protocol additionally checked against the existing reviewed
+scrappa_pilot.py request_params/call_api/normalize; no credentials/history copied.
+
+Capture failure diagnostics
+Native and hosted collection results preserve a fixed error_code and message for
+known capture failures (DNS, timeout, TLS, invalid/private destinations, byte
+limits, redirects and incomplete responses). Unknown exceptions use a generic
+message; exception text is not exposed. The same diagnostic is saved with the
+reserved operation. A failed or uncertain operation is never automatically retried.
+HTTP error pages remain archived with their actual status and original bytes, but
+are marked partial/http_error rather than complete evidence. Captured page count
+is not a useful-source count. Earlier immutable captures are not rewritten.
+
+Selected rendered capture is a separate explicit host-side path. See
+docs/rendered-capture.txt and docs/isolated-renderer.txt for the inspected
+network-none Docker browser, bounded host fetches, preserved assets, derived DOM,
+HTTP error diagnostics and platform limitations. Frozen tools never invoke it.

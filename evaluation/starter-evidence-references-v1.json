@@ -1,0 +1,271 @@
+{
+  "label_review_status": "unreviewed",
+  "schema": "private-evidence-references-v1",
+  "semantics": "Reference facts for the task question, not fabricated support for each candidate answer. Finding these quotes is evidence coverage, not semantic answer correctness.",
+  "tasks": [
+    {
+      "references": [
+        {
+          "id": "current-level",
+          "quote": "January 2 observation: Central gauge measured 47 cm.",
+          "url": "https://river.example/bulletin"
+        },
+        {
+          "id": "threshold",
+          "quote": "An alert requires 50 cm or more.",
+          "url": "https://river.example/bulletin"
+        },
+        {
+          "id": "north-unavailable",
+          "quote": "Station North data were unavailable.",
+          "url": "https://river.example/bulletin"
+        }
+      ],
+      "snapshot": "day2",
+      "starter": "river",
+      "task_id": "river-correct"
+    },
+    {
+      "references": [
+        {
+          "id": "current-level",
+          "quote": "January 2 observation: Central gauge measured 47 cm.",
+          "url": "https://river.example/bulletin"
+        },
+        {
+          "id": "threshold",
+          "quote": "An alert requires 50 cm or more.",
+          "url": "https://river.example/bulletin"
+        },
+        {
+          "id": "north-unavailable",
+          "quote": "Station North data were unavailable.",
+          "url": "https://river.example/bulletin"
+        }
+      ],
+      "snapshot": "day2",
+      "starter": "river",
+      "task_id": "river-unsupported"
+    },
+    {
+      "references": [
+        {
+          "id": "current-level",
+          "quote": "January 2 observation: Central gauge measured 47 cm.",
+          "url": "https://river.example/bulletin"
+        },
+        {
+          "id": "threshold",
+          "quote": "An alert requires 50 cm or more.",
+          "url": "https://river.example/bulletin"
+        },
+        {
+          "id": "north-unavailable",
+          "quote": "Station North data were unavailable.",
+          "url": "https://river.example/bulletin"
+        }
+      ],
+      "snapshot": "day2",
+      "starter": "river",
+      "task_id": "river-contradicted"
+    },
+    {
+      "references": [
+        {
+          "id": "current-level",
+          "quote": "January 2 observation: Central gauge measured 47 cm.",
+          "url": "https://river.example/bulletin"
+        },
+        {
+          "id": "threshold",
+          "quote": "An alert requires 50 cm or more.",
+          "url": "https://river.example/bulletin"
+        },
+        {
+          "id": "north-unavailable",
+          "quote": "Station North data were unavailable.",
+          "url": "https://river.example/bulletin"
+        }
+      ],
+      "snapshot": "day2",
+      "starter": "river",
+      "task_id": "river-temporal"
+    },
+    {
+      "references": [
+        {
+          "id": "corrected-trial",
+          "quote": "The corrected battery trial result is 74 Wh/kg, based on 6 cells tested at 20 degrees Celsius.",
+          "url": "https://energy.example/trial"
+        },
+        {
+          "id": "withdrawn-result",
+          "quote": "The preliminary 80 Wh/kg value is withdrawn.",
+          "url": "https://energy.example/trial"
+        },
+        {
+          "id": "cold-limitation",
+          "quote": "Room-temperature tests do not establish cold-weather performance.",
+          "url": "https://energy.example/scope"
+        }
+      ],
+      "snapshot": "day2",
+      "starter": "energy",
+      "task_id": "energy-correct"
+    },
+    {
+      "references": [
+        {
+          "id": "corrected-trial",
+          "quote": "The corrected battery trial result is 74 Wh/kg, based on 6 cells tested at 20 degrees Celsius.",
+          "url": "https://energy.example/trial"
+        },
+        {
+          "id": "withdrawn-result",
+          "quote": "The preliminary 80 Wh/kg value is withdrawn.",
+          "url": "https://energy.example/trial"
+        },
+        {
+          "id": "cold-limitation",
+          "quote": "Room-temperature tests do not establish cold-weather performance.",
+          "url": "https://energy.example/scope"
+        }
+      ],
+      "snapshot": "day2",
+      "starter": "energy",
+      "task_id": "energy-incomplete"
+    },
+    {
+      "references": [
+        {
+          "id": "corrected-trial",
+          "quote": "The corrected battery trial result is 74 Wh/kg, based on 6 cells tested at 20 degrees Celsius.",
+          "url": "https://energy.example/trial"
+        },
+        {
+          "id": "withdrawn-result",
+          "quote": "The preliminary 80 Wh/kg value is withdrawn.",
+          "url": "https://energy.example/trial"
+        },
+        {
+          "id": "cold-limitation",
+          "quote": "Room-temperature tests do not establish cold-weather performance.",
+          "url": "https://energy.example/scope"
+        }
+      ],
+      "snapshot": "day2",
+      "starter": "energy",
+      "task_id": "energy-contradicted"
+    },
+    {
+      "references": [
+        {
+          "id": "corrected-trial",
+          "quote": "The corrected battery trial result is 74 Wh/kg, based on 6 cells tested at 20 degrees Celsius.",
+          "url": "https://energy.example/trial"
+        },
+        {
+          "id": "withdrawn-result",
+          "quote": "The preliminary 80 Wh/kg value is withdrawn.",
+          "url": "https://energy.example/trial"
+        },
+        {
+          "id": "cold-limitation",
+          "quote": "Room-temperature tests do not establish cold-weather performance.",
+          "url": "https://energy.example/scope"
+        }
+      ],
+      "snapshot": "day2",
+      "starter": "energy",
+      "task_id": "energy-temporal"
+    },
+    {
+      "references": [
+        {
+          "id": "design-vote-budget",
+          "quote": "On January 2 the council approved the footbridge design phase by 6 votes to 3, with a ceiling of 1.5 million credits.",
+          "url": "https://civic.example/minutes"
+        },
+        {
+          "id": "construction-not-authorized",
+          "quote": "Construction was not authorized.",
+          "url": "https://civic.example/minutes"
+        },
+        {
+          "id": "completion-absent",
+          "quote": "No completion certificate has been issued.",
+          "url": "https://civic.example/status"
+        }
+      ],
+      "snapshot": "day2",
+      "starter": "civic",
+      "task_id": "civic-correct"
+    },
+    {
+      "references": [
+        {
+          "id": "design-vote-budget",
+          "quote": "On January 2 the council approved the footbridge design phase by 6 votes to 3, with a ceiling of 1.5 million credits.",
+          "url": "https://civic.example/minutes"
+        },
+        {
+          "id": "construction-not-authorized",
+          "quote": "Construction was not authorized.",
+          "url": "https://civic.example/minutes"
+        },
+        {
+          "id": "completion-absent",
+          "quote": "No completion certificate has been issued.",
+          "url": "https://civic.example/status"
+        }
+      ],
+      "snapshot": "day2",
+      "starter": "civic",
+      "task_id": "civic-unsupported"
+    },
+    {
+      "references": [
+        {
+          "id": "design-vote-budget",
+          "quote": "On January 2 the council approved the footbridge design phase by 6 votes to 3, with a ceiling of 1.5 million credits.",
+          "url": "https://civic.example/minutes"
+        },
+        {
+          "id": "construction-not-authorized",
+          "quote": "Construction was not authorized.",
+          "url": "https://civic.example/minutes"
+        },
+        {
+          "id": "completion-absent",
+          "quote": "No completion certificate has been issued.",
+          "url": "https://civic.example/status"
+        }
+      ],
+      "snapshot": "day2",
+      "starter": "civic",
+      "task_id": "civic-incomplete"
+    },
+    {
+      "references": [
+        {
+          "id": "design-vote-budget",
+          "quote": "On January 2 the council approved the footbridge design phase by 6 votes to 3, with a ceiling of 1.5 million credits.",
+          "url": "https://civic.example/minutes"
+        },
+        {
+          "id": "construction-not-authorized",
+          "quote": "Construction was not authorized.",
+          "url": "https://civic.example/minutes"
+        },
+        {
+          "id": "completion-absent",
+          "quote": "No completion certificate has been issued.",
+          "url": "https://civic.example/status"
+        }
+      ],
+      "snapshot": "day2",
+      "starter": "civic",
+      "task_id": "civic-temporal"
+    }
+  ]
+}

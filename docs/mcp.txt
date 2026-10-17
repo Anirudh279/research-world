@@ -1,0 +1,152 @@
+Research World MCP bridge (development alpha)
+
+This is a real stdio MCP server built with the official MCP Python SDK v2
+(currently locked to 2.3.0). Start the Research World HTTP API separately.
+The bridge uses our existing HTTP Client; it does not open the workspace database.
+
+Run from the checked-out repository after `uv sync --frozen`:
+
+  uv run python -m web_research_sim.mcp_server --snapshot SNAPSHOT_SHA256
+
+The default mode exposes frozen_search, frozen_open, frozen_find, frozen_follow
+and the native_session_* tools described below. Session writes save local
+research state; they do not call a model or the live web. The optional --snapshot argument restricts every frozen operation
+to that exact hash; omit it to allow explicit selection of any accessible snapshot.
+No tool in this default mode schedules collection or a model call. Open returns
+bounded text pages (default 12,000 characters, maximum 20,000); follow returns the
+archived linked target identity, which can then be opened. Find uses the API's
+literal phrase search. Missing documents and links return errors, never live fetches.
+
+Persisting a native research run:
+
+1. native_session_start(snapshot_id, provider, model, request_id, tool_limit=30)
+   creates a durable session. Provider/model are agent-declared labels, not an
+   authenticated model identity. Reuse the request_id with identical input
+   after connection uncertainty.
+2. native_session_tool(snapshot_id, session_id, action, arguments, operation_key)
+   performs and records frozen evidence operations. Actions and arguments:
+     search: {query, limit?}
+     open: {document_id}
+     find: {document_id, query}
+     follow: {document_id, url}
+   Reuse the operation_key with identical arguments after uncertainty. Failed
+   operations remain in the trace and count against the session tool budget.
+   A transport-level MCP success can contain {ok:false,error:{...}} for an
+   unsuccessful evidence operation: inspect ok before using result.
+3. native_session_submit(snapshot_id, session_id, answer, citations)
+   saves an ordinary comparable run. citations is a list of {document_id,quote}.
+   Quotes must have been exposed through this session's evidence operations.
+   Calling the standalone frozen_* tools does not record exposure in a session.
+   An identical repeated submission returns the same run; a changed answer is
+   rejected. Inspect run.status and citation_errors: validation failure remains
+   a recorded result, not a successful answer.
+4. native_session_status(snapshot_id, session_id) observes state.
+   native_session_reset(snapshot_id, session_id, request_id) creates a NEW session
+   on the same snapshot, preserving the previous trace and answer. Reuse the
+   returned new identity; resetting does not erase prior evidence or costs.
+
+Every session operation checks that the session belongs to the requested snapshot
+and respects --snapshot. Reset runs can be compared through the existing dashboard
+or POST /api/compare {run_ids:[first_run_id,second_run_id]}.
+Only tool activity through this session interface is recorded. External agent
+reasoning, unrelated tools, native model billing and network activity remain
+unobserved; costs are unknown, not zero. Persisted quotes establish text matching,
+not semantic support or factual correctness. Session state does not authenticate
+the declared model or prove that outside knowledge was absent.
+
+A native agent can use these tools to reason with its own model and subscription.
+Its model authentication remains entirely in that agent. This bridge does not
+read, export, refresh or forward Claude/OpenAI/Gemini account tokens. The only
+authentication it handles is the existing workspace HTTP bearer token through
+Client. A successful MCP connection does not prove subscription eligibility,
+model execution or whole-agent network isolation.
+
+For a frozen evaluation, also disable the agent's other web/search tools and
+control its network outside this server. Tool names and annotations are hints,
+not a security boundary around the native agent process. Archived page text is
+untrusted content and can contain instructions; do not grant it authority.
+
+Native Claude Code setup (example, replace the absolute path and snapshot):
+
+  claude mcp add --transport stdio research-world -- /absolute/path/to/web-research-sim/.venv/bin/python -m web_research_sim.mcp_server --snapshot SNAPSHOT_SHA256
+
+Native Codex setup (example):
+
+  codex mcp add research-world -- /absolute/path/to/web-research-sim/.venv/bin/python -m web_research_sim.mcp_server --snapshot SNAPSHOT_SHA256
+
+These commands register a process; they are not an authentication or research test.
+Use each client's MCP status/tools display and ask it to search/open a known demo
+snapshot. Separate actual Codex ChatGPT-authenticated verification completed native
+search/capture/freeze/session research/submission on October15; see
+docs/validity-study.md (public summary; raw receipt is private) Claude frozen and partial live capture runs are recorded in docs/validity-study.md (public summary; raw receipt is private) and docs/validity-study.md (public summary; raw receipt is private)
+We do not claim support for a hosted web-only chat client
+that cannot launch a local stdio process.
+
+HTTP connection configuration inherited by the bridge:
+  WR_SIM_URL       default http://127.0.0.1:8000
+  WR_SIM_TOKEN     optional workspace bearer token; required by a protected API
+  WR_SIM_SNAPSHOT  optional default snapshot pin (overridden by --snapshot)
+
+For a remote API, use HTTPS and configure its permitted host and bearer token.
+Pass environment through your MCP client's supported configuration or an inherited
+private environment. Do not put tokens in shared example configs or commands.
+The local stdio bridge can target a remote HTTP API; this is not a deployed HTTP
+MCP endpoint. No raw provider key is a tool argument.
+
+Explicit collection / hosted-model mode:
+
+  uv run python -m web_research_sim.mcp_server --mode all
+
+This adds:
+  workspace_status: current workspace/provider presence or world state, NOT frozen evidence
+  world_create: creates a question and model/search/capture call budgets
+  world_freeze: seals already archived content without fetching
+  live_collect: PAID/LIVE server-side model planning, search and capture
+  live_capture_discovered: capture URLs supplied by a native agent; no hosted planning/search
+  job_status: observes the existing durable job
+  hosted_research: PAID server-side model call over frozen evidence
+
+live_collect, live_capture_discovered and hosted_research require an idempotency_key. Reuse the identical
+key and arguments after an uncertain HTTP response; never create a new retry key.
+The server returns the existing job for an identical submission. Observe its
+status instead of repeatedly starting work. Budgets count calls, not dollars.
+
+The all-mode hosted workflows use the API server's provider credentials and billing.
+They do not borrow the model subscription of the native agent calling the tool.
+Native subscription reasoning over frozen tools and hosted API model execution
+are separate integration paths. For native live search, let the native agent use its own search tool, then call
+live_capture_discovered with native_client and 1–20 sources ({url, query?}). The API
+captures the pages now, with their actual capture times. Discovery is labeled
+agent-supplied, not verified provider ranking; it is not fabricated as a SERP.
+This path avoided hosted planning/search calls in one real Codex subscription
+verification. Broader account/platform compatibility remains unverified.
+
+Verification:
+  uv run pytest -q tests/test_mcp_server.py
+
+Tests launch a real SDK stdio subprocess and negotiate/list/call tools through the
+SDK client. The subprocess calls a real loopback HTTP API with an injected dummy
+workflow. Tests cover frozen reads/find/follow, snapshot pinning, archive misses,
+HTTP authentication failure, create/freeze, idempotent workflow job observation,
+and native session start/search/open/submit/reset with persisted comparison runs.
+They make no paid provider calls and do not authenticate a real native agent.
+
+Primary references checked October 15, 2026:
+  Official SDK: https://py.sdk.modelcontextprotocol.io/
+  SDK clients/transports: https://py.sdk.modelcontextprotocol.io/client/
+  Claude Code MCP: https://code.claude.com/docs/en/mcp
+  Codex registration syntax: installed `codex mcp add --help` (read-only check)
+
+Native-only world budgets may be zero for model_calls and search_calls, with a
+positive capture_calls allowance. Zero prohibits server-hosted provider calls;
+it does not limit the native client's own inference/search usage. This path is
+accepted at creation as well as by subsequent budget updates.
+
+Native source-selection rationale
+Each live_capture_discovered source uses the same typed contract as HTTP:
+url (1–4,000 characters), optional query (up to 600 characters), optional rationale
+(up to 2,000 characters). Unknown fields are rejected. The selected query and
+rationale are retained as agent-supplied provenance, not verified ranking or
+proof of relevance. Schema validation happens before capture-job admission.
+After a validation error, inspect workspace/job state before correcting input;
+transport uncertainty is not evidence that no work was admitted.

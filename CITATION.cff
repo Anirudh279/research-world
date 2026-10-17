@@ -1,0 +1,12 @@
+cff-version: 1.2.0
+message: "If you use Research World, cite this software and report the commit and snapshot digest."
+type: software
+title: "Research World: Frozen Evidence Environments for Web Research Agents"
+authors:
+  - family-names: Agarwal
+    given-names: Anirudh
+    affiliation: Small Theory Labs
+repository-code: "https://github.com/Anirudh279/research-world"
+license: MIT
+version: 0.1.0-alpha.1
+date-released: 2026-10-17

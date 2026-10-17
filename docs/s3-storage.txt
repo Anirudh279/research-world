@@ -1,0 +1,90 @@
+Own S3-compatible archive storage (opt-in)
+
+Local files remain the default. SQLite world metadata, reservations, job receipts
+and sessions remain on the local durable data volume. S3 stores content-addressed
+objects: originals, extracted text, manifests and referenced assets. Back up BOTH
+the data volume and bucket. This is not a shared multi-server SQLite deployment.
+
+Install: uv sync --extra s3
+Pinned production dependency installation alternative:
+  python -m pip install --require-hashes -r requirements-s3.lock
+The default Docker image does not install the optional S3 extra. The supplied
+Dockerfile supports --build-arg STORAGE_BACKEND=s3 with its separate pinned lock.
+The Compose overlay selects this build automatically; no source edits required.
+No credentials are build arguments or image layers.
+
+Before first opening a NEW data directory, write data/storage.json:
+{
+  "backend": "s3",
+  "endpoint": "https://YOUR-ACCOUNT.r2.cloudflarestorage.com",
+  "bucket": "YOUR-BUCKET",
+  "prefix": "research-sim/objects",
+  "region": "auto"
+}
+For AWS choose its regional S3 endpoint and region. The bucket must already exist.
+The application does not create buckets, change policies or purchase storage.
+HTTPS required except literal loopback/localhost HTTP for local emulator testing.
+Keep endpoint/bucket configuration private if your organization requires that.
+
+Set WRS_S3_ACCESS_KEY_ID and WRS_S3_SECRET_ACCESS_KEY using your runtime secret
+manager/environment. Optional WRS_S3_SESSION_TOKEN supports temporary credentials.
+Do NOT place credentials in storage.json. Unknown keys are rejected. Ordinary
+AWS_* credentials, profiles, metadata-service credentials and environment proxies
+are not used. Fresh bounded capture workers receive only these dedicated storage
+secrets when their workspace explicitly selects S3. Browser containers do not
+receive them. Supply the same dedicated variables to each process using this store.
+Use bucket/prefix-scoped GetObject and PutObject rights; no application DeleteObject
+or ListBucket operation is required. Missing-object responses may be access-denied
+without ListBucket permission and then appear as storage_unavailable, still closed.
+
+The backend selection is bound in SQLite. Removing/changing storage.json later
+fails, rather than falling back to local files. To change endpoints/backends, export
+an authorized portable snapshot and import it into a new configured workspace.
+No automatic migration or data copying takes place. Bundle exports contain only
+manifest-referenced content and world metadata, never storage.json or credentials.
+
+Every key is prefix/SHA256. GET reads at most 16 MiB + 1 and validates the digest;
+PUT is a single conditional create with IfNoneMatch='*'. A pre-existing object is
+read and checked, never replaced. Successful creation is also verified by GET.
+Conflicts other than an existing object and transport errors fail without retry.
+An uncertain PUT may have succeeded: inspect the saved operation before retrying.
+The service MUST implement S3 conditional PutObject; there is no unsafe overwrite
+compatibility fallback. External administrators can still modify/delete objects;
+digest validation detects changed content but does not provide Object Lock/WORM.
+
+Frozen replay may read the configured archive endpoint; this is archive transport,
+not source-web access. Missing, corrupt or unavailable archive objects fail closed.
+It never substitutes local cached files or fetches original live pages. SDK socket
+connect/read timeouts are 5s/15s and retries are disabled. These are socket limits,
+not a total wall-clock guarantee for direct replay requests. Bounded static capture
+additionally wraps the entire fresh process in its overall deadline.
+
+Verification (no remote/cloud calls):
+  uv sync --extra s3 --group s3-test
+  .venv/bin/python -m pytest tests/test_storage_s3.py -q
+8 passing tests in 3.37s, including actual loopback Moto HTTP server requests from
+both parent and fresh capture subprocess. Covers conditional duplicate/corrupt
+collision, missing object, export/import/restart, no fallback despite local copy,
+removed selector, explicit credentials, outage, bounded size, sanitized failures.
+Injected fake client tests cover oversized declared length and transport errors.
+Moto is a development-only optional group, not a production dependency. AWS S3,
+R2, MinIO, cloud IAM and service-specific conditional behavior remain UNVERIFIED.
+
+Official API references reviewed October 15, 2026:
+https://docs.aws.amazon.com/boto3/latest/reference/services/s3/client/put_object.html
+https://docs.aws.amazon.com/boto3/latest/reference/services/s3/client/get_object.html
+
+CONTAINER SETUP
+Save the non-secret JSON above as storage.json outside the repository. Export
+WRS_STORAGE_CONFIG as its absolute path, and set the dedicated credential variables
+in your shell or secret manager. Use a NEW Compose project name so an existing
+local workspace is not silently switched. For example:
+  docker compose -p research-s3 -f compose.yaml -f compose.s3.yaml up --build -d
+The configuration is mounted read-only; a missing host file fails rather than
+creating a directory. SQLite persists in this project's named archive volume.
+The endpoint must be reachable from the container. Host loopback addresses do
+not refer to the host from a container. Use HTTPS for remote archive storage.
+For a second simultaneous server, choose a different host port in an override;
+the standard Compose file binds 127.0.0.1:8000. Do not run compose down -v when
+you need to retain the metadata. This example does not create a bucket or grant
+permissions. Cloud account and service behavior require your own verification.

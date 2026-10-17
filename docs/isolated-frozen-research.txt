@@ -1,0 +1,64 @@
+Controlled frozen research tools — experimental opt-in
+
+Build the minimal worker from reviewed code:
+  docker build -f Dockerfile.frozen -t web-research-sim:frozen-worker .
+  docker image inspect web-research-sim:frozen-worker --format '{{.Id}}'
+Use the returned immutable sha256 ID (never a mutable tag) with:
+  web-research-sim research-isolated SNAPSHOT_ID --data DATA_DIRECTORY \
+    --image-id sha256:IMAGE_ID --request-key UNIQUE_KEY \
+    --provider openai --model YOUR_EXPLICIT_MODEL --max-steps 8
+Use anthropic for its API alternative. Normal explicit cost admission and durable
+model-call budgets still apply. A request key cannot silently rerun a consumed or
+uncertain job. CLI broker needs local Docker access; do not mount a Docker socket
+into a public API container. No native-agent or subscription-client confinement
+is implied by this command.
+
+Boundary:
+The trusted host stages only the exact verified manifest, its originals, text and
+referenced assets. It does not mount metadata SQLite, raw model/search responses,
+evaluator labels, the project directory, user home, or credentials. The minimal
+image includes Python, core replay code and the fixed tool worker; it does not
+include starters, providers or hidden evaluation data. The stage is capped at
+256 MiB by default and each content-addressed object remains capped at 16 MiB.
+
+A fresh container is created per tool call. Its actual configuration is inspected
+before execution: exact image, network none, read-only root and archive mount,
+UID/GID 10001, all capabilities dropped, no-new-privileges, 1 CPU, 512 MiB memory
+and swap total, and 64 PIDs. Initialization executes a real ready handshake before
+the first model operation can be admitted. Fixed JSON commands permit search,
+open (paged), find and follow. There is no arbitrary Python/shell/URL-fetch tool.
+Input is capped at 16 KiB, response at 256 KiB, tool process at 15 seconds default.
+Docker create/inspect/removal have separate bounded deadlines; tool timeout is not
+a bound on total setup/cleanup latency. Containers are forcibly removed on exit;
+cleanup failure surfaces instead of falling back to an unconfined replay.
+
+The worker validates the pinned manifest digest on every invocation. Missing or
+changed objects and links absent from the manifest fail closed. Host staging may
+read a configured S3 archive, but the worker has no archive credentials or network.
+Stages are cleaned up after the context exits. Setup verifies every referenced
+object before starting research. There is no live-source fallback.
+
+The model API and trusted host broker remain OUTSIDE this network boundary. They
+need provider connectivity. Only the fixed OpenAI/Anthropic JSON action request
+path is intended here; no provider native web tools are enabled. Model prior
+knowledge cannot be removed. These controls constrain tool evidence access, not
+knowledge or semantic truth. External Claude Code/Codex MCP clients remain labeled
+tool-scoped and are not made network-isolated by this runner.
+
+Verification, October 15, 2026:
+Actual Docker tests used image
+sha256:c170676c2d6177aa45d7ca8d000a1bf2edf6b3875d4b5af7444cca2703465b73
+with synthetic archived evidence and no inference/API charges. Run:
+  WRS_FROZEN_TEST_IMAGE=sha256:IMAGE_ID .venv/bin/python -m pytest \
+    tests/test_isolated_replay.py -q
+The tests exercise deterministic repeated tools, exact manifest identity, unknown
+live URL/missing link failures, corrupted-manifest rejection, and actual container
+socket and filesystem probes under inspected constraints. A socket connection to
+1.1.1.1:443 fails under network none; root writes fail; archive names equal only
+allowed hashes; hidden files are absent/inaccessible; provider/storage credentials
+are absent. The probe uses test-owned code, not a product agent execution tool.
+A first test run exposed a probe permission exception checking /root; the test now
+correctly treats that path as inaccessible. This was not a product bypass.
+Per-tool fresh container setup adds latency; no throughput guarantee is made.
+No independent penetration test, cloud deployment, or native-client sandbox proof
+is claimed. Docker daemon and trusted host remain part of the trusted boundary.

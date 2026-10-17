@@ -1,0 +1,38 @@
+Bounded static capture — 2026-10-15
+
+fetch_bounded(store_or_root, world_id, url, max_bytes=2097152,
+              timeout_seconds=30) returns the existing CapturedPage.
+
+The production command is fixed: the current Python interpreter launches
+web_research_sim.capture_worker in a fresh subprocess/session. It does not fork
+the multithreaded API. A bounded JSON request names the existing store/world.
+No model keys, HOME, proxy variables or inherited PYTHONPATH are forwarded.
+The worker uses the existing public-address checks, pinned connection and
+redirect validation. This does not grant access to private fixture addresses.
+
+The worker commits each final response original through Store.preserve_original
+before text/PDF extraction. Returned pages carry that receipt. If extraction or
+persistence stalls, the parent deadline stops the process group, including PDF
+subprocesses. An original can therefore exist even when the caller receives a
+timeout. The caller must leave its prior reservation spent/uncertain. There is
+no automatic retry, reservation, refund, or duplicate submission in this wrapper.
+
+Nonblocking stdin/stdout share one monotonic deadline, including Python startup,
+DNS, all redirects, response reads, Store writes and extraction. Defaults: 30s;
+accepted deadline >0 and <=120s; final body <=2MiB; request <=16KiB; response JSON
+<=12MiB; text <=4MiB; headers after persistence <=64KiB. Cleanup allows a further
+2s to reap the main process. Only stable failure codes escape worker errors.
+This wrapper requires POSIX process groups (the current macOS/Linux runtime).
+It is a reliability boundary, not an operating-system security sandbox. Python
+process creation itself and a kernel uninterruptible task cannot be given a
+hard real-time guarantee; normal worker and descendant cleanup is tested.
+
+Verification: .venv/bin/python -m pytest tests/test_bounded_capture.py -q
+7 tests passed in 2.60s. These are controlled fixture tests, not public-web
+performance or provider tests. A real fresh worker rejects loopback. Test-only
+transport replacement happens inside a fresh child, never through production
+configuration. It verifies original receipt and exact body persistence; a
+simulated extraction hang leaves that original durable and the one-call budget
+consumed. An actual worker launches an actual sleeping descendant; timeout
+kills both (a reparented zombie counts as stopped, not executing). Output bounds,
+input bounds, environment stripping and exception redaction are also checked.

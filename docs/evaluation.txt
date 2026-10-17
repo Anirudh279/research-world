@@ -1,0 +1,122 @@
+Evidence evaluation — deterministic diagnostics, semantic judgment separate
+
+The evaluator is available through the local CLI and authenticated read endpoint
+GET /api/runs/{run_id}/evaluation. The endpoint loads the persisted run and pinned
+snapshot; it accepts no replacement traces or hidden reference panel. Repeated
+reads recompute integrity against current stored bytes and do not call a model.
+Dashboard/report integration is tracked separately.
+
+evaluate(replay, run, references=None) takes one pinned replay and a run
+bound to the same snapshot. It does not call a model, search the web or modify the
+world. It checks original/text integrity through replay.open before using text.
+
+Citation diagnostics are independent fields:
+- document membership in the pinned manifest;
+- capture AND archive timestamp eligibility;
+- verified original/text integrity;
+- exact nonempty quote presence in extracted text;
+- quote exposure in a recorded open/find/follow observation.
+
+A valid citation must pass all those checks. Search snippets alone do not count as
+opened evidence. Both hosted-workflow traces and native SessionManager traces are
+supported. Truncated observations expose only returned text. The evaluator checks
+that observed fragments exist in archived text; it cannot authenticate an arbitrary
+caller-supplied trace or prove which model read it. Future integration should load
+trusted, persisted runs, not allow contestants to replace their own tool traces.
+
+Hidden reference panel format (passed explicitly by the evaluator):
+  [{id: 'item-1', url: 'https://source.example/item', quote: 'Exact source text'}]
+Optional document_id pins one version; otherwise matching URL versions inside the
+snapshot are considered. Choose exact-version references when versions disagree.
+URLs also match recorded requested_url redirects. Quote matching is literal,
+case-sensitive and does not silently normalize punctuation or whitespace.
+
+Report fields include per-item exact availability, observed exposure, valid citation
+coverage and reference_exact_recall. The denominator is the number of explicitly
+declared reference items; an empty panel yields null, not perfect recall. A reference
+is cited when its exact quote appears within a valid citation from a matching source.
+These scores do not establish semantic relevance, answer correctness, reasoning
+quality, source truth, or completeness relative to the whole internet.
+
+Gap diagnostics are narrowly supported:
+- collection_gap: declared reference URL/version is absent from this snapshot.
+  This says nothing about whether it exists elsewhere or was available before cutoff.
+- retrieval_miss: its exact quote exists in extracted archive text but is absent
+  from recorded open/find/follow exposure. This includes an agent choosing not to
+  open the document, not merely a search algorithm failure.
+- extraction_gap: its exact UTF-8 bytes exist in the preserved original response
+  but not extracted text. This does not prove rendered visibility: source bytes may
+  include hidden markup, script strings or unsupported encodings.
+- observed_not_cited: the quote was exposed but has no valid matching citation.
+- exact_reference_cited: the exact declared evidence was exposed and cited.
+- unknown: missing quote with no byte evidence, unreadable/corrupt source, or
+  temporal ineligibility. Do not relabel these as diagnosed retrieval/collection gaps.
+
+The judge field starts {status:'unknown',assessments:[]}. No deterministic metric
+promotes it to passed. attach_assessment accepts an actual caller-supplied human or
+model review with identity {kind,name,...}, rubric {id,version,...}, nonempty evidence
+records, explicit uncertainty and pass/fail/inconclusive verdict. It returns a new
+report, preserving the original and linking its hash. The status is review_supplied,
+not independently_verified. Reviewer identity and evidence provenance are not
+cryptographically authenticated by this helper. Conflicting reviews remain separate;
+there is no automatic consensus or invented judge result.
+
+Private fixture separation:
+evaluation/starter-reference-tasks-v1.json contains 12 self-authored candidate
+answers/labels. Their labels remain unreviewed. The separately frozen
+starter-evidence-references-v1.json contains exact evidence coverage references,
+not purported support for each candidate answer. Tests load these ONLY in the
+host-side evaluator, outside the agent world. Never mount/package/index/serve that
+directory to contestant agents. Public source pages and hidden expected assessments
+are different assets. These self-authored fixtures are not an independent benchmark.
+
+Verification:
+  uv run pytest -q tests/test_evaluator.py
+
+Twelve labeled deterministic edge cases exercise supported quotes, unsupported
+quotes, foreign documents, no tools, search-only exposure, truncation, find/native
+traces, missing sources, raw-only text, unexplained missing text and corruption.
+Additional tests cover temporal defense, explicit review attachment and all 12
+hidden starter candidate answers. The latter deliberately keep semantic judgment
+unknown even where a candidate answer has an authored 'correct' or 'contradicted'
+label: exact evidence availability cannot decide those semantic labels.
+
+Verification update, 15 October 2026
+The frozen v1 files retain their original unreviewed metadata; their bytes have
+not been rewritten after review. Separate receipts record an author self-check,
+a different Codex process review, and a fresh native Claude review with labels
+and label-bearing IDs omitted from its input. All 12 primary labels agreed, and
+all 12 native-review evidence sets matched supplied quotes exactly. This is model
+review agreement, not human verification or ground truth. Reviewers identified
+category overlap for temporal claims, an optional temperature detail, and the
+need to use planning-status evidence when assessing project completion. Do not
+interpret a single primary label as an exhaustive or mutually exclusive taxonomy.
+Semantic judgments on new agent runs remain unknown until actually reviewed.
+The native review's CLI list-price estimate was recorded separately from billing;
+its actual subscription charge was not verified. No reference panel is exposed
+by the public saved-run evaluation endpoint.
+
+Portable comparison verification
+The comparison API and CLI now include evidence_checks for each saved run and
+verified-citation/observed-document metrics. HTML reports show those diagnostics,
+the run trace, snapshot identity and unknown semantic/billing limitations.
+Creator, with the workspace API running:
+  web-research-sim compare RUN_A RUN_B --html comparison.html > comparison.json
+  web-research-sim export SNAPSHOT_ID world.zip --data data --allow-redistribution
+Only use --allow-redistribution when source permissions permit sharing.
+Recipient, after receiving the permitted files:
+  web-research-sim import world.zip --data recipient-data
+  web-research-sim verify-comparison comparison.json --data recipient-data
+Verification requires no server, model, search account or creator run database.
+The JSON input limit is 16 MiB. A matching result exits zero; altered metrics or
+source integrity differences exit nonzero. This reproduces computations from
+supplied traces; it cannot establish their authenticity or model identity.
+No hidden reference panel or semantic verdict is inferred from this check.
+
+Actual portability evidence
+The two previously saved native Codex/Claude synthetic-world runs reproduced
+comparison metrics in a fresh Linux ARM64 container on 15 October 2026. The
+container had network=none, a read-only root and only two read-only input files
+(world.zip and comparison.json). Imported storage contained no creator run rows.
+This is actual offline container evidence, not a clean physical-machine onboarding
+trial, real model inference inside that container, or a human usability result.

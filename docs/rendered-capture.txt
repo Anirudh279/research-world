@@ -1,0 +1,117 @@
+Rendered capture prototype — controlled synthetic fixtures only
+
+This is an opt-in standalone module, not an integrated live-browser capture path.
+render_live() always refuses: OS-level network containment has not been proved.
+No package installation, provider credentials, live website request or pilot change
+was needed for the prototype. Node, Playwright and Chrome executable/module paths
+must be supplied explicitly; the module never downloads a browser.
+
+render_fixture(url, resources, original_sink=..., enabled=True,
+               node_executable=..., playwright_module=..., browser_executable=...)
+resources maps synthetic .test/.example/example.org URLs to original byte bodies,
+HTTP status and content-type headers. Literal IPs and other hosts are forbidden.
+Fixture bytes are caller-owned test content, never described as internet captures.
+
+An actual headless Chromium executes inline/external JavaScript and fetches JSON,
+CSS and other supplied assets. Every intercepted GET asks the Python controller
+for a response over JSONL IPC. The controller checks limits and calls the mandatory
+original_sink BEFORE sending response bytes to the browser. The root original
+hash, asset receipt/hash/status/byte count, rendered DOM, innerText, title, browser
+version and blocked request log remain distinct. The derived DOM is saved as a
+derived_rendered_dom artifact; it does not replace or masquerade as source HTML.
+A failed original sink aborts rendering. Missing resources yield partial results
+when rendering can continue; root document failure produces an error.
+
+Default caps: 30 intercepted requests, 2 MiB per resource, 10 MiB accepted resource
+bytes, 2 MiB rendered HTML/text each, 20 seconds controller wall time and 250 ms
+settle wait. Every cap is bounded above. Node and its separately grouped Chromium children are terminated on
+exit/error using a unique per-run browser token; bounded cleanup is additional. Slow or blocking caller-supplied
+original_sink is NOT preempted by the controller timer: storage callbacks must be
+bounded. JavaScript heap flag is 128 MiB but is NOT an operating-system RAM cap.
+Large browser-internal allocation, rendering nondeterminism, backend traffic and
+CPU contention are not certified bounded by this prototype.
+
+Defense in depth: nonpersistent browser context, stripped child environment, no
+user browser profile, dead proxy including loopback bypass removal, HTTP route
+fulfillment only (never route.continue/fetch), GET only, service workers blocked,
+WebSocket routes closed, downloads/popups rejected, background network/QUIC flags,
+nonproxied WebRTC policy. All redirects are rejected after original preservation,
+rather than claiming an untested redirect-safe browser implementation. These are
+application/browser controls, NOT proof that every Chromium network channel is
+blocked. Host packet/egress verification and Linux namespace/container resource
+limits are required before arbitrary/live HTML may be admitted.
+
+Next transport contract: a separately sandboxed browser with no egress; controller
+fetch_raw(url, max_bytes, remaining_seconds) through validated pinned sockets,
+redirect-by-redirect originals and destination checks; controller-owned credential-
+free requests only. Use an explicit bounded asset manifest and original_sink before
+fulfillment. Browser-origin headers/cookies/proxy settings must never reach fetch.
+Live enablement must depend on actual OS egress and resource-boundary tests, not a
+boolean claiming safety. This prototype deliberately cannot enable live mode.
+
+Tests require these explicit environment variables to run actual browsers:
+RENDER_TEST_NODE, RENDER_TEST_PLAYWRIGHT, RENDER_TEST_BROWSER.
+Without them, browser tests are skipped and cannot count as passed browser evidence.
+Run: python -m pytest tests/test_rendered_capture.py -q
+
+Official browser API documentation checked during implementation:
+https://playwright.dev/docs/api/class-browsercontext#browser-context-route
+https://playwright.dev/docs/api/class-browsercontext#browser-context-route-web-socket
+
+Observed implementation issue: the initial controller-only kill left Chromium
+children in a different process group. Those specifically identified fixture
+orphans were removed. The implementation now tags each browser launch with a
+unique token and kills only its exact main-browser process group during cleanup.
+An actual infinite-JavaScript timeout test checks that its token is absent from
+the process inventory after return. This does not prove behavior after host death.
+
+INITIAL LINUX CONTAINER BOUNDARY PROOF
+Dockerfile.renderer supplies a separate ARM64 browser runtime, pinned by base
+image digest and npm package-lock. It is not part of the default app container.
+A synthetic dynamic page was rendered under --network none, --cap-drop ALL,
+--security-opt no-new-privileges:true, --read-only, --cpus 2, --memory 1g,
+--pids-limit 128 and a 256 MiB temporary filesystem, as pwuser. Actual attempted
+connections to an external IP and metadata IP failed. Originals preceded the
+derived DOM, and the container exited cleanly without OOM.
+Evidence: docs/validity-study.md (public summary; raw receipt is private) and matching
+container-settings receipt. This is initial ARM64 evidence, not x86 portability
+or comprehensive browser-escape verification. The host-side validated live fetch
+controller and production capture workflow are still not connected to this
+runtime. render_live remains disabled; do not lift that guard on the strength
+of a fixture result alone. The browser inside the pinned image reports its own
+version, which differs from the separately tested host Chrome installation.
+
+ARCHIVE INTEGRATION
+The host-side Python entry point render_archive.capture_rendered accepts Store,
+world_id, URL, an operation_key and an exact local Docker image_id. It reserves
+one capture operation before starting. The default transport validates/pins public
+IP addresses on every GET; the browser itself has Docker network mode none.
+No Docker socket is exposed through the HTTP service or mounted in its container.
+This is currently an explicit host-side capability, not automatic UI fallback.
+
+Original HTTP bodies are committed before browser delivery. The final main
+response remains the capture body; generated DOM is a separate derived artifact.
+Scripts and other captured responses are manifest references. Freeze and portable
+export/import include and verify these objects. A world-v2 manifest is required.
+A failed render can leave recoverable originals without an admitted capture.
+A reused operation key never resends requests; inspect the saved operation.
+One capture slot covers at most 30 browser resource requests and 10 MiB of source
+bytes; resource count and bytes are separately recorded. This is not 30 paid
+search calls. Blocked resources yield an explicit partial capture, not an assertion
+that the page is complete. Subresource redirects currently fail closed.
+
+SELECTED LIVE PAGE: COMMAND-LINE PATH
+Run on the host with Docker available and access to the world's local data folder.
+Build once from the repository:
+  docker build -f Dockerfile.renderer -t research-renderer .
+Read the exact local image ID:
+  docker image inspect research-renderer --format '{{.Id}}'
+Capture a selected URL into an existing world:
+  web-research-sim capture-rendered WORLD_ID https://example.org/ \
+    --data data --image-id sha256:YOUR_LOCAL_IMAGE_ID \
+    --request-key selected-page-001
+Then freeze that world through the usual API/CLI. The new capture appears in
+snapshots whose cutoff is after all source/derived artifacts became available.
+Keep the request key on interruption; do not invent a new key to retry blindly.
+The current pinned renderer base is Linux ARM64. Native AMD64 has not been tested.
+The host Python controller supports macOS/Linux; do not claim Windows support.

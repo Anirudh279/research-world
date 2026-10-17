@@ -1,0 +1,76 @@
+Offline-container browser controller — experimental, opt-in
+
+render_isolated(url, image_id=exact_sha256, fetch_response=trusted_callback,
+                original_sink=durable_callback, enabled=True)
+
+This is a host-side capture controller. It never runs browser code on the host.
+The browser image is supplied by exact local image ID; no mutable image tag,
+automatic installation or purchase is accepted. The worker receives generated
+Node code as an argument, not a host mount. Page bytes enter only after inspection
+of the actual running container proves: network none; read-only root; pwuser;
+2 CPUs; 1 GiB memory and swap ceiling; 128 PIDs; all capabilities dropped;
+no-new-privileges; private PID/IPC boundaries; zero host mounts/devices/ports;
+256 MiB /tmp tmpfs. HOME/XDG cache/config point into that tmpfs. No host credentials,
+Docker socket, home directory or profile enter the browser. The host controller
+uses Docker and must run where that access is explicitly intended.
+
+Each browser HTTP request is intercepted and handed to a separate short-lived
+host process. The trusted fetch callback receives (url, max_bytes, timeout_seconds),
+with timeout_seconds at most 20. It must implement public-address checking, pinned
+connections, no credentials/cookies, a single GET hop and bounded response bytes.
+raw_capture.fetch_raw_response is the intended adapter. It returns a dataclass or
+mapping with url, requested_url, status, headers, body:bytes and captured_at.
+The original_sink(body, metadata) callback runs in the same bounded child and must
+commit durable bytes before returning a serializable receipt. In-memory parent
+lists do not survive fork; use a content-addressed store or durable fixture files.
+Callback exceptions are sanitized. A deadline kills the callback process; storage
+commit may have occurred before its acknowledgement was lost, so callers must
+retain reserved budget and must not blindly retry this uncertain capture.
+
+The returned object separates requested_url, final url, final main-original hash,
+all original asset receipts/hashes/bytes, derived rendered HTML/text/title, browser
+version, blocked requests and the inspected boundary receipt. Encoded originals
+are persisted before an unsupported-content-encoding error; they are not fed to
+the browser. Unknown failed fetch byte counts consume their reserved byte ceiling.
+Derived HTML is persisted through another bounded child before successful return.
+
+Redirect handling is deliberate: Playwright interception does not re-enter its
+handler on every automatic redirect hop. Main-document 3xx responses are preserved,
+then an empty intermediate document is fulfilled and the controller explicitly
+navigates to the next URL, forcing a fresh intercepted request. The final original
+hash binds to the final rendered URL; initial redirect bodies remain assets.
+Maximum six main-document navigation attempts. Private literal redirect targets
+are rejected before navigation; the host raw transport must validate DNS on every
+new URL. Subresource/subframe redirects are refused and reported as partial, not
+silently fetched. The synthetic intermediate document is not a publisher original.
+This does not claim exact browser redirect timing/history semantics.
+
+Default limits: 30 requests; 2 MiB each; 10 MiB accepted or conservatively reserved
+resource bytes; 2 MiB each rendered HTML/text; 45 seconds for startup, callbacks,
+IPC and rendering; 250 ms settle wait. Cleanup has additional bounded time (Docker
+removal up to 10 s, absence verification up to 3 s, attached process up to 2 s).
+Blocking fetch and sink callbacks are included in the render deadline. Browser IPC
+writes are nonblocking and deadline-controlled. Browser websockets, service workers,
+POST, popups and downloads remain disabled. Container resource limits cover browser
+processes; host callback functions are trusted code, not a general host-code sandbox.
+
+Cleanup removes the uniquely named container and checks absence. Cleanup uncertainty
+raises an error containing container_name for inspection; it is never silently
+reported as successful teardown. Fork-based callback isolation currently targets
+Unix hosts (macOS/Linux). Arbitrary callback child-process creation and Windows
+portability are not certified. Container/network failure does not reclaim a capture
+operation's reservation. The caller must persist operation admission before invoking.
+
+Controlled tests are enabled by RENDER_TEST_IMAGE=sha256:<installed-image-id>.
+Without this variable actual Docker tests skip and cannot count as Docker evidence.
+Run: python -m pytest tests/test_isolated_renderer.py -q
+No model/search API calls occur. Browser network-none is real isolation of browser
+sockets; host collection is intentionally live when a public fetch adapter is used.
+This controller must never be invoked as a fallback inside frozen research replay.
+
+HTTP error responses (status 400 or above) retain their original bytes and status
+and are delivered to browser code as actual HTTP errors. They also add an explicit
+http_error diagnostic and make the rendered result partial. The historical field
+blocked_requests includes these diagnostics with response_delivered=true; it does
+not mean that this particular response was withheld. This distinguishes missing
+assets from successful page rendering even when scripts tolerate a missing asset.

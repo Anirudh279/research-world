@@ -1,0 +1,82 @@
+Bounded release secret scan — heuristic check, not security certification
+
+Run only against explicit intended release inputs, for example:
+
+  python scripts/scan_release.py src docs dist/release.whl release-export.zip
+
+The utility reads files and directories, ZIP/wheels, TAR and compressed TAR
+(gzip/bzip2/xz). Nested archive members are examined without extracting or running
+them. A Docker-save tar is scanned as nested archives: each readable layer.tar is
+checked, including lower-layer files later deleted by whiteouts. Whiteouts do not
+remove earlier findings. This is not a Docker daemon or live image inspection.
+A flattened container filesystem alone cannot reveal deleted lower-layer secrets.
+
+Patterns flag likely provider tokens, private-key markers, Authorization values,
+long assigned credentials and selected user-account filesystem paths. This includes
+OpenAI/Anthropic-style keys, Google API-key-shaped strings and AWS access-key IDs.
+An access-key ID is an identifier rather than a complete credential, but should be
+reviewed before release. The patterns are intentionally heuristic: false positives
+and missed credentials are expected. They do not cover all providers, encodings,
+base64 payloads, short passwords, split strings, encrypted data or arbitrary PII.
+
+No matched bytes, filenames, full paths, exception messages or secret fingerprints
+are printed. Each finding identifies only its category, opaque object_id, name/link/
+content region and byte offset. object_id is SHA-256 of the internal identity:
+input-N!basename!member!nested-member. N is the zero-based explicit input index.
+This avoids leaking a secret placed in a filename. Keep a local record of input
+order to reproduce a finding; inspect originals privately, not in a public report.
+The hash is of identity, not the credential. Do not treat obscured filenames as
+cryptographic protection of predictable names or publish reports without review.
+
+Default limits:
+- 256 MiB cumulative reads, including archive metadata/decompression work;
+- 16 MiB per file/member;
+- 10,000 entries;
+- 5 archive nesting levels;
+- 1,000 findings.
+
+Override with --max-total-bytes, --max-file-bytes, --max-entries, --max-depth and
+--max-findings. Inputs must be positive integers. Counters are conservative: nested
+bytes may count at multiple levels. A one-byte lookahead may exceed the read limit
+by one byte. Compressed TAR metadata and skipped data are bounded too, preventing
+large PAX headers from bypassing member limits. An oversized TAR member ends that
+archive scan; the unscanned remainder is reported. Memory use also depends on
+archive metadata and configured limits; this is not a formally verified sandbox.
+Choose limits suitable for the machine and artifact; do not infer coverage from a
+quick scan of a multi-gigabyte image using these defaults.
+
+Symlinks and special files are never followed. Archive path traversal is flagged;
+its readable payload can still be inspected safely because nothing is extracted.
+Missing/unreadable files, malformed or unsupported archives, encrypted ZIP members,
+links, exceeded limits and later inputs skipped after exhaustion are explicitly
+reported in unscanned_or_limits. A finding can coexist with incomplete coverage:
+always inspect both status and complete. No exclusions are silently applied to an
+explicit directory, so do not choose an entire home/credential directory. Scan the
+release tree/export/image chosen for publication, with fake-secret tests separately.
+
+Results and exit codes:
+- 0: no_findings_within_scope, complete=true. Only means these patterns found
+     nothing in the selected inputs within configured bounds.
+- 1: findings detected. Check complete and unscanned_or_limits for partial coverage.
+- 2: partial scan or invalid limits/input; never a clean result.
+
+The scanner does not verify licenses, dependency vulnerabilities, object integrity,
+Git history, provider contract permission, or access control. Use it alongside the
+existing distribution boundary checker and manual release review. It does not
+make the public-release decision and has not scanned any real large image by itself.
+
+Verification:
+  uv run pytest -q tests/test_release_scan.py
+
+Tests inject fabricated keys/private-key markers/auth headers/account paths,
+exercise ZIP/TAR/nested Docker-save layers including deleted files, verify that
+output contains no matched values or private filenames, and cover traversal,
+symlinks, malformed archives, compressed expansion, PAX metadata, depth/entry/
+byte limits and CLI exit codes. No credential store, external service or paid API
+is read by these tests.
+
+Compressed standalone logs (gzip, bzip2 and xz) are decompressed within the same
+byte limits and scanned as content. Compressed TAR uses the bounded TAR path.
+Truncated streams and decompression limits make coverage incomplete. Codec
+internal buffers, dictionary memory and CPU are not hard-capped by these byte
+limits; run untrusted archives within a separate resource-limited process.

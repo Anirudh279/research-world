@@ -1,0 +1,80 @@
+Single-machine deployment through an SSH tunnel
+===============================================
+
+This path uses your existing Linux machine with Docker Engine, Docker Compose
+and SSH. It does not provision hosting. One simulator process owns one persistent
+archive volume. Keep a stable directory and Compose project name for this server.
+Separate Linux deployment and a full remote LLM session remain unverified.
+
+On the server, unpack the source distribution or copy the reviewed source tree.
+From its root, create the private configuration once:
+
+  cp .env.example .env
+  chmod 600 .env
+
+Use a private editor to set WR_SIM_TOKEN to a freshly generated random secret
+(at least 32 random bytes). Set API keys only if choosing hosted inference/search.
+Do not share this file or run commands that print expanded Compose configuration.
+Leave provider keys empty for native-agent collection. Native account login stays
+on your own computer. Hosting does not provide model or search credits.
+
+Start the server with a stable project name:
+
+  docker compose --project-name research-world up --build -d
+  docker compose --project-name research-world ps
+
+The supplied Compose file exposes only 127.0.0.1:8000 on the server. Do not open
+port 8000 in its public firewall. From your own computer, open a tunnel:
+
+  ssh -N -L 127.0.0.1:18000:127.0.0.1:8000 YOUR_SSH_HOST
+
+Replace YOUR_SSH_HOST with your SSH destination. Keep that process running and
+open http://127.0.0.1:18000 in your browser. The remote leg is encrypted by SSH;
+the plain HTTP endpoint is local loopback. Paste the workspace token into Connect.
+The dashboard shell and health endpoint are public; archive API routes require
+the token. The token is shared workspace authority, not a per-user permission.
+This setup is for trusted collaborators, not public multi-tenant hosting.
+
+For a local native agent's MCP bridge, configure WR_SIM_URL as
+http://127.0.0.1:18000 and WR_SIM_TOKEN through its private environment. Follow
+docs/mcp.txt for client setup. The bridge runs locally and calls the tunneled API;
+the server performs captures. No native subscription credential goes to the server.
+Follow docs/first-session.txt to collect, freeze and compare actual agent runs.
+Hosted calls additionally require the allocation and price policy in docs/costs.txt.
+
+Persistence and maintenance
+---------------------------
+
+The research-world_archive named volume stores SQLite metadata and local objects.
+Recreating the container with the same project retains it. Changing the project
+name selects a different volume and can look like data loss. Do not use down -v
+unless deliberately deleting the archive. Do not run another process against the
+same metadata directory. Follow docs/storage-and-recovery.txt before upgrades.
+
+  docker compose --project-name research-world restart simulator
+
+After reconnecting, verify the same world and snapshot IDs and inspect interrupted
+jobs before retrying. A restart never authorizes repeating an uncertain paid call.
+Back up the stopped metadata and objects together; an object-only backup omits
+jobs, budgets, runs and schedules. S3 object storage still needs persistent SQLite
+metadata. See docs/s3-storage.txt for its separate configuration.
+
+Public HTTPS is a different deployment configuration: use an authenticated TLS
+reverse proxy, forward the intended hostname, and configure WR_SIM_PUBLIC_HOST
+in the simulator together with WR_SIM_TOKEN. The default Compose file does not
+configure this proxy or forward WR_SIM_PUBLIC_HOST. Do not expose its HTTP port
+directly. Public TLS deployment is not verified by the SSH-tunnel instructions.
+
+Current validation scope
+------------------------
+
+Local Docker checks can verify token enforcement, named-volume persistence and
+container recreation. They do not establish a working SSH connection, separate
+Linux host, provider account access or independent user setup time. Those release
+gates remain explicit until tested on the actual destination.
+
+On 15 October 2026 a fresh-volume Compose check on the existing macOS Docker VM
+passed missing/invalid-token rejection (401), cross-origin rejection (403), and
+identical world metadata/budgets after force-recreating the container. It used
+the pinned product image and an alternate loopback port. No SSH/TLS transport or
+provider calls were exercised. Receipt: protected-compose-recreation-2026-10-15.

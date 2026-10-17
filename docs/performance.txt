@@ -1,0 +1,40 @@
+MEASURED LOCAL PERFORMANCE — 15 OCTOBER 2026
+
+Current product image:
+sha256:14535af0be564de11f03acb0ebc9f31b6e888103700392f68f62bafd29122b46
+Linux ARM64 Docker Desktop VM, shared host, four-CPU quota, 4 GiB container limit.
+The VM has about 7.76 GiB total memory and other workloads; this is not a dedicated
+four-CPU/eight-GiB clean deployment.
+
+Corpus: 10,000 project-authored synthetic HTML/text documents, about 20 MB original
+source bytes. Thirty sequential requests of each type; OS caches were not flushed.
+Search queries used "ecology sectorN" for N=0..29. Search reloads and verifies the
+manifest and scans the frozen corpus. Open also reloads the manifest.
+
+Image-already-built startup to first successful loopback health response: 0.53 s.
+Includes docker run and health polling; excludes image download/build/sign-in.
+HTTP search: p50 760 ms, p95 869 ms.
+HTTP open: p50 38 ms, p95 41 ms.
+Container cgroup peak memory: 309 MiB, including benchmark child and page cache.
+Core benchmark Python process peak RSS: about 65 MiB.
+No cgroup out-of-memory event was recorded.
+
+These are observations, not minimum resource requirements or latency guarantees.
+They exclude model/search providers, live capture, PDFs, browser rendering, S3,
+concurrent users and the host Docker daemon. The separate browser worker has its
+own configured resource limits. Whole-stack first-session sizing remains open.
+Do not infer 100,000-document performance from this linear-search measurement.
+
+Reproduce the core portion against a NEW empty directory:
+  python -m web_research_sim.benchmark --data benchmark-data \
+    --output benchmark-result.json --documents 10000 --samples 30
+This creates synthetic evidence and refuses to overwrite its start marker/output.
+The result records all samples, query hashes, cgroup limits and fixture limitations.
+For HTTP measurements, start the API on that same data directory, use the returned
+snapshot ID, repeat GET /api/snapshots/ID/search?q=ecology%20sectorN and
+GET /api/snapshots/ID/documents/DOCUMENT_ID, and time complete response reads.
+Record transport, concurrency, cache state and hardware rather than comparing
+unqualified numbers. HTTP and in-process latencies are different measurements.
+
+Full current receipt: docs/validity-study.md (public summary; raw receipt is private)
+The earlier performance receipt is retained; it is not overwritten by this run.

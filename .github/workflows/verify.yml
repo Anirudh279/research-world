@@ -1,0 +1,59 @@
+name: Verify offline product behavior
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, macos-14]
+        python: ['3.11', '3.12']
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - run: python -m pip install uv==0.7.4
+      - run: uv sync --frozen
+      - run: uv run --frozen pytest -q
+      - run: uv build --out-dir dist
+      - run: uv run --frozen python scripts/check_distribution.py dist/*.whl dist/*.tar.gz
+      - run: uv run --frozen python scripts/scan_release.py dist/*.whl dist/*.tar.gz
+  container:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -t research-world-ci .
+      - name: Verify packaged synthetic starter without network access
+        run: |
+          docker run --rm --network none research-world-ci python -c 'import tempfile; from web_research_sim.core import Store; from web_research_sim.starters import install_starter; s=Store(tempfile.mkdtemp()); w=install_starter(s,"river"); r=s.replay(w["default_snapshot_id"]); assert len(r.records)==3; [r.open(k) for k in r.records]'
+  frozen-boundary:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install uv==0.7.4
+      - run: uv sync --frozen
+      - run: docker build -f Dockerfile.frozen -t research-world-frozen-ci .
+      - name: Exercise actual network-disabled replay and reference workflow
+        run: |
+          WRS_FROZEN_TEST_IMAGE="$(docker image inspect research-world-frozen-ci --format '{{.Id}}')" uv run --frozen pytest -q tests/test_isolated_replay.py tests/test_isolated_workflow.py
+  storage-emulator:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install uv==0.7.4
+      - run: uv sync --frozen --extra s3 --group s3-test
+      - name: Exercise S3 contracts against loopback emulator only
+        run: uv run --frozen --extra s3 --group s3-test pytest -q tests/test_storage_s3.py tests/test_bounded_capture.py

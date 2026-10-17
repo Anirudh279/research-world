@@ -1,0 +1,16 @@
+# Research World
+> Capture web evidence with an LLM, freeze a snapshot, compare research-agent observations.
+
+- [Getting started](README.md)
+- [Agent integration](docs/agents.md)
+- [MCP tool contract](docs/mcp.txt)
+- [Python sessions](docs/python-agent.txt)
+- [Cost admission](docs/costs.txt)
+- [Methodology](docs/methodology.md)
+- [Validity and limits](docs/validity-study.md)
+- [Contributing](CONTRIBUTING.md)
+
+Development alpha. Native subscription authentication stays in the native client.
+Frozen tools do not guarantee whole-process isolation. Citation matching does not
+prove correctness. Example comparison reports contain answers: exclude them from
+research-agent context when evaluating the corresponding world.

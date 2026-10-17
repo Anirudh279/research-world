@@ -1,0 +1,39 @@
+CONTRIBUTING
+
+Install Python 3.11+ and uv, then run:
+  uv sync --frozen
+  uv run --frozen pytest -q
+  uv build --out-dir dist
+  uv run --frozen python scripts/check_distribution.py dist/*.whl dist/*.tar.gz
+
+Tests use controlled fixtures, not your provider accounts. Do not configure paid
+keys for CI. Real provider verification is a separate, explicitly budgeted task.
+The GitHub workflow covers Python 3.11/3.12 on Linux/macOS and an offline Linux
+container starter. Adding the workflow does not mean a remote run has passed.
+It also does not establish human usability, deployed access or live LLM quality.
+
+Provider changes belong in adapters and need contract tests for success, auth
+failure, rate limits, truncated responses and uncertain acknowledgment. Never
+retry an ambiguous paid call automatically. Preserve pre-call reservations and
+report unknown costs as unknown. Keep native subscriptions in native clients.
+
+Archive changes must preserve originals, manifest identity and capture-time
+boundaries. Include negative tests for new trust boundaries. Keep hidden answer
+panels outside installed packages, images and agent tools. Never update frozen
+reference labels simply to improve an agent's score.
+
+Build artifacts use an explicit source-distribution allowlist. The package check
+rejects evaluator material, experiment receipts and data directories, and verifies
+the dashboard is included. This is not a substitute for a full secret scan.
+Do not publish artifacts or scraped content without a separate release review.
+Product code uses the MIT license in LICENSE. Third-party dependencies keep
+their own licenses; publisher content is not covered by the code license. The
+self-authored synthetic starter text is separately labeled CC0-1.0. Release
+readiness still requires dependency attribution and source-permission review.
+
+Dedicated offline CI jobs opt into actual Docker frozen-boundary tests and the
+loopback S3 emulator suite. Neither supplies production model/search/storage
+credentials. The default suite intentionally skips these integrations when their
+runtime is unavailable. Their local passes do not establish remote CI results.
+For the required independent human tests, use docs/developer-walkthrough.txt and
+the accompanying blank record template. Do not fill them with simulated testers.

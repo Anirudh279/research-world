@@ -1,0 +1,41 @@
+[build-system]
+requires = ["hatchling>=1.26,<2"]
+build-backend = "hatchling.build"
+
+[project]
+name = "web-research-sim"
+version = "0.1.0a1"
+description = "Create frozen research worlds and compare web research agents."
+requires-python = ">=3.11"
+license = "MIT"
+license-files = ["LICENSE", "THIRD_PARTY_NOTICES.txt"]
+dependencies = [
+    "fastapi>=0.115,<1",
+    "uvicorn>=0.34,<1",
+    "httpx>=0.28,<1",
+    "mcp>=2,<3",
+    "pypdf>=6.20,<7",
+]
+
+[project.scripts]
+web-research-sim = "web_research_sim.cli:main"
+
+[project.optional-dependencies]
+s3 = [
+    "boto3>=1.40,<2",
+]
+
+[dependency-groups]
+dev = ["pytest>=8,<10"]
+s3-test = [
+    "moto[server]>=5,<6",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/web_research_sim"]
+
+[tool.hatch.build.targets.sdist]
+include = ["/LICENSE", "/THIRD_PARTY_NOTICES.txt", "/src", "/docs", "/examples", "/README.md", "/pyproject.toml", "/requirements.lock", "/requirements-s3.lock", "/uv.lock", "/Dockerfile", "/Dockerfile.renderer", "/Dockerfile.frozen", "/renderer", "/compose.yaml", "/compose.s3.yaml", "/.dockerignore", "/.env.example"]

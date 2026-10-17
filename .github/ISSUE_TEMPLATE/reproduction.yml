@@ -1,0 +1,24 @@
+name: Reproduction or bug report
+description: Help us make an experiment another developer can reproduce.
+title: "[Reproduction] "
+body:
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment and version
+      description: Commit, OS, Python/Docker version; no secrets or private paths.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Exact steps and expected result
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual result and redacted evidence
+      description: Use synthetic fixtures. Do not upload workspace databases or publisher archives.
+    validations:
+      required: true

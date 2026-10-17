@@ -1,0 +1,291 @@
+{
+  "schema": "research-comparison-v1",
+  "runs": [
+    {
+      "answer": "The revised inspection date is 21 November 2031.",
+      "citation_errors": [],
+      "citations": [
+        {
+          "document_id": "ca748df8bbb0420b8a103f8603c8dbdf",
+          "quote": "Revised inspection date: 21 November 2031."
+        }
+      ],
+      "cost_usd": null,
+      "created_at": "2026-10-15T15:34:24.176882+00:00",
+      "evaluation": "Exact quote visibility only; no semantic support or external-agent identity verification.",
+      "id": "754ecc8c41534d6688c281380c6b5bbb",
+      "isolation": "tool_scoped_external_client_not_network_isolated",
+      "model": "native-default-unverified",
+      "model_identity": "declared_unverified",
+      "observed_models": [],
+      "provider": "OpenAI-subscription",
+      "session_id": "5895f24e5bf746d7ad4e0586d4b5cb5e",
+      "snapshot_id": "8f68b14d32c0010e08d35af25126743a0a62e039ead69db3c94ef149a9a54ad3",
+      "status": "completed",
+      "trace": [
+        {
+          "action": {
+            "action": "search",
+            "arguments": {
+              "query": "Mossbank reservoir bulletin"
+            }
+          },
+          "observation": {
+            "ok": true,
+            "result": {
+              "results": [
+                {
+                  "body_sha256": "b6160047c897b8dc9fb30344265f527ded21eb6fd681f8070b3d84b74aa534e0",
+                  "captured_at": "2026-01-01T00:00:00Z",
+                  "id": "ca748df8bbb0420b8a103f8603c8dbdf",
+                  "score": 5,
+                  "snippet": "Mossbank reservoir bulletin. Revised inspection date: 21 November 2031. Earlier planned date: 18 November 2031.",
+                  "title": "Synthetic Mossbank bulletin",
+                  "url": "https://fixture.example/bulletin"
+                }
+              ]
+            },
+            "snapshot_id": "8f68b14d32c0010e08d35af25126743a0a62e039ead69db3c94ef149a9a54ad3"
+          },
+          "operation_key": "mossbank-search-1"
+        },
+        {
+          "action": {
+            "action": "open",
+            "arguments": {
+              "document_id": "ca748df8bbb0420b8a103f8603c8dbdf"
+            }
+          },
+          "observation": {
+            "ok": true,
+            "result": {
+              "archived_at": "2026-10-15T15:33:31.831909+00:00",
+              "body_bytes": 111,
+              "body_sha256": "b6160047c897b8dc9fb30344265f527ded21eb6fd681f8070b3d84b74aa534e0",
+              "captured_at": "2026-01-01T00:00:00Z",
+              "extraction_error": null,
+              "extraction_status": "completed",
+              "extractor": "static-text-v1",
+              "headers": {},
+              "id": "ca748df8bbb0420b8a103f8603c8dbdf",
+              "links": [],
+              "provenance": {
+                "fixture": true,
+                "rights": "synthetic project-authored"
+              },
+              "requested_url": "https://fixture.example/bulletin",
+              "snapshot_id": "8f68b14d32c0010e08d35af25126743a0a62e039ead69db3c94ef149a9a54ad3",
+              "status": 200,
+              "text": "Mossbank reservoir bulletin. Revised inspection date: 21 November 2031. Earlier planned date: 18 November 2031.",
+              "text_sha256": "b6160047c897b8dc9fb30344265f527ded21eb6fd681f8070b3d84b74aa534e0",
+              "text_truncated": false,
+              "title": "Synthetic Mossbank bulletin",
+              "url": "https://fixture.example/bulletin",
+              "world_id": "420090dbfb194aea9ce648b44cd436f9"
+            },
+            "snapshot_id": "8f68b14d32c0010e08d35af25126743a0a62e039ead69db3c94ef149a9a54ad3"
+          },
+          "operation_key": "mossbank-open-1"
+        }
+      ],
+      "usage": [],
+      "world_id": "420090dbfb194aea9ce648b44cd436f9"
+    },
+    {
+      "answer": "The revised inspection date is 21 November 2031. The earlier planned date was 18 November 2031.",
+      "citation_errors": [],
+      "citations": [
+        {
+          "document_id": "ca748df8bbb0420b8a103f8603c8dbdf",
+          "quote": "Revised inspection date: 21 November 2031."
+        }
+      ],
+      "cost_usd": null,
+      "created_at": "2026-10-15T15:54:41.620778+00:00",
+      "evaluation": "Exact quote visibility only; no semantic support or external-agent identity verification.",
+      "id": "c4a8c8ab918d4dc6ab7f105cccb85a65",
+      "isolation": "tool_scoped_external_client_not_network_isolated",
+      "model": "native-default-unverified",
+      "model_identity": "declared_unverified",
+      "observed_models": [],
+      "provider": "Claude-subscription",
+      "session_id": "286f373546ba4a7bb244ded88c87bcf8",
+      "snapshot_id": "8f68b14d32c0010e08d35af25126743a0a62e039ead69db3c94ef149a9a54ad3",
+      "status": "completed",
+      "trace": [
+        {
+          "action": {
+            "action": "search",
+            "arguments": {
+              "query": "Mossbank reservoir bulletin"
+            }
+          },
+          "observation": {
+            "ok": true,
+            "result": {
+              "results": [
+                {
+                  "body_sha256": "b6160047c897b8dc9fb30344265f527ded21eb6fd681f8070b3d84b74aa534e0",
+                  "captured_at": "2026-01-01T00:00:00Z",
+                  "id": "ca748df8bbb0420b8a103f8603c8dbdf",
+                  "score": 5,
+                  "snippet": "Mossbank reservoir bulletin. Revised inspection date: 21 November 2031. Earlier planned date: 18 November 2031.",
+                  "title": "Synthetic Mossbank bulletin",
+                  "url": "https://fixture.example/bulletin"
+                }
+              ]
+            },
+            "snapshot_id": "8f68b14d32c0010e08d35af25126743a0a62e039ead69db3c94ef149a9a54ad3"
+          },
+          "operation_key": "search-1"
+        },
+        {
+          "action": {
+            "action": "open",
+            "arguments": {
+              "document_id": "ca748df8bbb0420b8a103f8603c8dbdf"
+            }
+          },
+          "observation": {
+            "ok": true,
+            "result": {
+              "archived_at": "2026-10-15T15:33:31.831909+00:00",
+              "body_bytes": 111,
+              "body_sha256": "b6160047c897b8dc9fb30344265f527ded21eb6fd681f8070b3d84b74aa534e0",
+              "captured_at": "2026-01-01T00:00:00Z",
+              "extraction_error": null,
+              "extraction_status": "completed",
+              "extractor": "static-text-v1",
+              "headers": {},
+              "id": "ca748df8bbb0420b8a103f8603c8dbdf",
+              "links": [],
+              "provenance": {
+                "fixture": true,
+                "rights": "synthetic project-authored"
+              },
+              "requested_url": "https://fixture.example/bulletin",
+              "snapshot_id": "8f68b14d32c0010e08d35af25126743a0a62e039ead69db3c94ef149a9a54ad3",
+              "status": 200,
+              "text": "Mossbank reservoir bulletin. Revised inspection date: 21 November 2031. Earlier planned date: 18 November 2031.",
+              "text_sha256": "b6160047c897b8dc9fb30344265f527ded21eb6fd681f8070b3d84b74aa534e0",
+              "text_truncated": false,
+              "title": "Synthetic Mossbank bulletin",
+              "url": "https://fixture.example/bulletin",
+              "world_id": "420090dbfb194aea9ce648b44cd436f9"
+            },
+            "snapshot_id": "8f68b14d32c0010e08d35af25126743a0a62e039ead69db3c94ef149a9a54ad3"
+          },
+          "operation_key": "open-1"
+        }
+      ],
+      "usage": [],
+      "world_id": "420090dbfb194aea9ce648b44cd436f9"
+    }
+  ],
+  "metrics": [
+    {
+      "run_id": "754ecc8c41534d6688c281380c6b5bbb",
+      "status": "completed",
+      "model_steps": 2,
+      "verified_citations": 1,
+      "observed_documents": 1,
+      "citations": 1,
+      "invalid_citations": 0,
+      "cost_usd": null
+    },
+    {
+      "run_id": "c4a8c8ab918d4dc6ab7f105cccb85a65",
+      "status": "completed",
+      "model_steps": 2,
+      "verified_citations": 1,
+      "observed_documents": 1,
+      "citations": 1,
+      "invalid_citations": 0,
+      "cost_usd": null
+    }
+  ],
+  "evidence_checks": {
+    "754ecc8c41534d6688c281380c6b5bbb": {
+      "schema": "evidence-evaluation-v1",
+      "snapshot_id": "8f68b14d32c0010e08d35af25126743a0a62e039ead69db3c94ef149a9a54ad3",
+      "run_sha256": "46afc09f942f0b0241b07d04895b636519171c3b605d5f2b7c26bbc7d54bd25c",
+      "reference_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "citations": [
+        {
+          "index": 0,
+          "document_id": "ca748df8bbb0420b8a103f8603c8dbdf",
+          "member": true,
+          "temporal_eligible": true,
+          "integrity_verified": true,
+          "exact_quote": true,
+          "observed_quote": true,
+          "valid": true,
+          "error": null
+        }
+      ],
+      "reference_items": [],
+      "metrics": {
+        "citation_count": 1,
+        "valid_citations": 1,
+        "reference_count": 0,
+        "reference_exact_recall": null,
+        "observed_reference_coverage": null,
+        "search_hit_documents": 1,
+        "observed_documents": 1
+      },
+      "judge": {
+        "status": "unknown",
+        "assessments": []
+      },
+      "limitations": [
+        "Exact strings do not establish factual correctness or semantic support.",
+        "Trace exposure is evaluated as supplied; external model identity and whole-agent isolation are unverified.",
+        "Reference recall describes only the declared hidden panel, not internet coverage."
+      ]
+    },
+    "c4a8c8ab918d4dc6ab7f105cccb85a65": {
+      "schema": "evidence-evaluation-v1",
+      "snapshot_id": "8f68b14d32c0010e08d35af25126743a0a62e039ead69db3c94ef149a9a54ad3",
+      "run_sha256": "a30906d4e9fa0781fb37c7839a114620373c0e722ef7da01092b4fcc206a889d",
+      "reference_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "citations": [
+        {
+          "index": 0,
+          "document_id": "ca748df8bbb0420b8a103f8603c8dbdf",
+          "member": true,
+          "temporal_eligible": true,
+          "integrity_verified": true,
+          "exact_quote": true,
+          "observed_quote": true,
+          "valid": true,
+          "error": null
+        }
+      ],
+      "reference_items": [],
+      "metrics": {
+        "citation_count": 1,
+        "valid_citations": 1,
+        "reference_count": 0,
+        "reference_exact_recall": null,
+        "observed_reference_coverage": null,
+        "search_hit_documents": 1,
+        "observed_documents": 1
+      },
+      "judge": {
+        "status": "unknown",
+        "assessments": []
+      },
+      "limitations": [
+        "Exact strings do not establish factual correctness or semantic support.",
+        "Trace exposure is evaluated as supplied; external model identity and whole-agent isolation are unverified.",
+        "Reference recall describes only the declared hidden panel, not internet coverage."
+      ]
+    }
+  },
+  "snapshot_id": "8f68b14d32c0010e08d35af25126743a0a62e039ead69db3c94ef149a9a54ad3",
+  "limitations": [
+    "Citation count does not measure answer quality.",
+    "Semantic support and factual correctness are not yet graded.",
+    "Unknown costs are not zero."
+  ]
+}

@@ -1,0 +1,13 @@
+.venv/
+__pycache__/
+.pytest_cache/
+*.pyc
+.env
+.env.*
+!.env.example
+data/
+dist/
+*.egg-info/
+evidence/private/
+# Local experiment receipts are not public release material.
+evidence/

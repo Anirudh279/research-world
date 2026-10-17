@@ -1,0 +1,18 @@
+# Explicit opt-in overlay. Use a new workspace volume; see docs/s3-storage.txt.
+services:
+  simulator:
+    build:
+      context: .
+      args:
+        STORAGE_BACKEND: s3
+    environment:
+      WRS_S3_ACCESS_KEY_ID: ${WRS_S3_ACCESS_KEY_ID:?Set dedicated archive access key}
+      WRS_S3_SECRET_ACCESS_KEY: ${WRS_S3_SECRET_ACCESS_KEY:?Set dedicated archive secret}
+      WRS_S3_SESSION_TOKEN: ${WRS_S3_SESSION_TOKEN:-}
+    volumes:
+      - type: bind
+        source: ${WRS_STORAGE_CONFIG:?Set path to non-secret storage.json}
+        target: /data/storage.json
+        read_only: true
+        bind:
+          create_host_path: false

@@ -1,0 +1,22 @@
+Synthetic starter worlds — version 1
+
+Three self-authored CC0-1.0 evidence sets: river observations, an energy trial,
+and a council project. All institutions, measurements and events are fictional.
+These are reproducible input fixtures, not live collection or real-world research.
+Each contains three dated versions of a source and an explicit missing source.
+The default January 2 snapshot excludes the January 3 version. Source dates and
+archive timestamps are simulated and labeled as such in every document's provenance.
+
+Python: list_starters(); install_starter(store, 'river', budgets=explicit_limits).
+The result contains world_id, three snapshots and default_snapshot_id. Installation
+makes no network or model calls. Then run a real configured model through Workflow
+research or an authenticated native client through a frozen session, and compare
+its saved answer with another agent. Installation alone is not an LLM product pass.
+
+A separate evaluation/starter-reference-tasks-v1.json contains 12 authored labeled
+answers across these domains. It must never be packaged into agent images, exposed
+by the HTTP/MCP server, copied into challenge exports or indexed as source evidence.
+Labels are frozen before any scoring and explicitly unreviewed. They exercise
+correct, unsupported, contradicted, temporally invalid and incomplete cases; they
+are not evidence of semantic-judge accuracy or independent human validation.
+The companion SHA256 receipt binds the task file bytes before grading.

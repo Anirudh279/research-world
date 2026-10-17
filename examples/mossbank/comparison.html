@@ -1,0 +1,245 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'">
+<title>Research World comparison</title><style>
+body{font:16px/1.5 system-ui,sans-serif;max-width:1400px;margin:40px auto;padding:0 24px;color:#18252b;background:#fafaf7}
+.runs{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,400px),1fr));gap:24px}
+article{background:white;border:1px solid #d4ddda;border-radius:12px;padding:24px;min-width:0}
+pre,.answer{white-space:pre-wrap;overflow-wrap:anywhere}code,dd{overflow-wrap:anywhere}dt{font-weight:600}dd{margin:0 0 10px}
+blockquote{border-left:3px solid #458575;margin:12px 0;padding-left:12px}h1,h2{line-height:1.2}</style></head>
+<body><h1>Same evidence. Different agents.</h1><p>Frozen world: <code>8f68b14d32c0010e08d35af25126743a0a62e039ead69db3c94ef149a9a54ad3</code></p>
+<p>This report records these runs. Fresh model generations can differ. Citation counts and exact quotes alone do not establish answer quality.</p>
+<div class="runs"><article><h2>OpenAI-subscription / native-default-unverified</h2>
+<dl><dt>Run</dt><dd>754ecc8c41534d6688c281380c6b5bbb</dd><dt>Status</dt><dd>completed</dd>
+<dt>Observed model identities</dt><dd>Unknown</dd>
+<dt>Recorded trace steps</dt><dd>2</dd><dt>Cost</dt><dd>Unknown (not zero)</dd>
+<dt>Invalid citations</dt><dd>0</dd></dl>
+<h3>Answer</h3><div class="answer">The revised inspection date is 21 November 2031.</div>
+<h3>Citations</h3><ol><li><code>ca748df8bbb0420b8a103f8603c8dbdf</code><blockquote>Revised inspection date: 21 November 2031.</blockquote></li></ol>
+<h3>Evidence checks</h3><p>1 of 1 citations pass source membership, time, integrity, exact-quote and recorded-access checks.</p>
+<p>Observed documents: 1. Semantic correctness: unknown. No hidden reference panel was used.</p>
+<details><summary>Inspect reproducible evidence checks</summary><pre>{
+  &quot;schema&quot;: &quot;evidence-evaluation-v1&quot;,
+  &quot;snapshot_id&quot;: &quot;8f68b14d32c0010e08d35af25126743a0a62e039ead69db3c94ef149a9a54ad3&quot;,
+  &quot;run_sha256&quot;: &quot;46afc09f942f0b0241b07d04895b636519171c3b605d5f2b7c26bbc7d54bd25c&quot;,
+  &quot;reference_sha256&quot;: &quot;4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945&quot;,
+  &quot;citations&quot;: [
+    {
+      &quot;index&quot;: 0,
+      &quot;document_id&quot;: &quot;ca748df8bbb0420b8a103f8603c8dbdf&quot;,
+      &quot;member&quot;: true,
+      &quot;temporal_eligible&quot;: true,
+      &quot;integrity_verified&quot;: true,
+      &quot;exact_quote&quot;: true,
+      &quot;observed_quote&quot;: true,
+      &quot;valid&quot;: true,
+      &quot;error&quot;: null
+    }
+  ],
+  &quot;reference_items&quot;: [],
+  &quot;metrics&quot;: {
+    &quot;citation_count&quot;: 1,
+    &quot;valid_citations&quot;: 1,
+    &quot;reference_count&quot;: 0,
+    &quot;reference_exact_recall&quot;: null,
+    &quot;observed_reference_coverage&quot;: null,
+    &quot;search_hit_documents&quot;: 1,
+    &quot;observed_documents&quot;: 1
+  },
+  &quot;judge&quot;: {
+    &quot;status&quot;: &quot;unknown&quot;,
+    &quot;assessments&quot;: []
+  },
+  &quot;limitations&quot;: [
+    &quot;Exact strings do not establish factual correctness or semantic support.&quot;,
+    &quot;Trace exposure is evaluated as supplied; external model identity and whole-agent isolation are unverified.&quot;,
+    &quot;Reference recall describes only the declared hidden panel, not internet coverage.&quot;
+  ]
+}</pre></details>
+<p>Exact quote visibility only; no semantic support or external-agent identity verification.</p>
+<p>Isolation: tool_scoped_external_client_not_network_isolated</p>
+<details><summary>Inspect recorded tool trace</summary><pre>[
+  {
+    &quot;action&quot;: {
+      &quot;action&quot;: &quot;search&quot;,
+      &quot;arguments&quot;: {
+        &quot;query&quot;: &quot;Mossbank reservoir bulletin&quot;
+      }
+    },
+    &quot;observation&quot;: {
+      &quot;ok&quot;: true,
+      &quot;result&quot;: {
+        &quot;results&quot;: [
+          {
+            &quot;body_sha256&quot;: &quot;b6160047c897b8dc9fb30344265f527ded21eb6fd681f8070b3d84b74aa534e0&quot;,
+            &quot;captured_at&quot;: &quot;2026-01-01T00:00:00Z&quot;,
+            &quot;id&quot;: &quot;ca748df8bbb0420b8a103f8603c8dbdf&quot;,
+            &quot;score&quot;: 5,
+            &quot;snippet&quot;: &quot;Mossbank reservoir bulletin. Revised inspection date: 21 November 2031. Earlier planned date: 18 November 2031.&quot;,
+            &quot;title&quot;: &quot;Synthetic Mossbank bulletin&quot;,
+            &quot;url&quot;: &quot;https://fixture.example/bulletin&quot;
+          }
+        ]
+      },
+      &quot;snapshot_id&quot;: &quot;8f68b14d32c0010e08d35af25126743a0a62e039ead69db3c94ef149a9a54ad3&quot;
+    },
+    &quot;operation_key&quot;: &quot;mossbank-search-1&quot;
+  },
+  {
+    &quot;action&quot;: {
+      &quot;action&quot;: &quot;open&quot;,
+      &quot;arguments&quot;: {
+        &quot;document_id&quot;: &quot;ca748df8bbb0420b8a103f8603c8dbdf&quot;
+      }
+    },
+    &quot;observation&quot;: {
+      &quot;ok&quot;: true,
+      &quot;result&quot;: {
+        &quot;archived_at&quot;: &quot;2026-10-15T15:33:31.831909+00:00&quot;,
+        &quot;body_bytes&quot;: 111,
+        &quot;body_sha256&quot;: &quot;b6160047c897b8dc9fb30344265f527ded21eb6fd681f8070b3d84b74aa534e0&quot;,
+        &quot;captured_at&quot;: &quot;2026-01-01T00:00:00Z&quot;,
+        &quot;extraction_error&quot;: null,
+        &quot;extraction_status&quot;: &quot;completed&quot;,
+        &quot;extractor&quot;: &quot;static-text-v1&quot;,
+        &quot;headers&quot;: {},
+        &quot;id&quot;: &quot;ca748df8bbb0420b8a103f8603c8dbdf&quot;,
+        &quot;links&quot;: [],
+        &quot;provenance&quot;: {
+          &quot;fixture&quot;: true,
+          &quot;rights&quot;: &quot;synthetic project-authored&quot;
+        },
+        &quot;requested_url&quot;: &quot;https://fixture.example/bulletin&quot;,
+        &quot;snapshot_id&quot;: &quot;8f68b14d32c0010e08d35af25126743a0a62e039ead69db3c94ef149a9a54ad3&quot;,
+        &quot;status&quot;: 200,
+        &quot;text&quot;: &quot;Mossbank reservoir bulletin. Revised inspection date: 21 November 2031. Earlier planned date: 18 November 2031.&quot;,
+        &quot;text_sha256&quot;: &quot;b6160047c897b8dc9fb30344265f527ded21eb6fd681f8070b3d84b74aa534e0&quot;,
+        &quot;text_truncated&quot;: false,
+        &quot;title&quot;: &quot;Synthetic Mossbank bulletin&quot;,
+        &quot;url&quot;: &quot;https://fixture.example/bulletin&quot;,
+        &quot;world_id&quot;: &quot;420090dbfb194aea9ce648b44cd436f9&quot;
+      },
+      &quot;snapshot_id&quot;: &quot;8f68b14d32c0010e08d35af25126743a0a62e039ead69db3c94ef149a9a54ad3&quot;
+    },
+    &quot;operation_key&quot;: &quot;mossbank-open-1&quot;
+  }
+]</pre></details></article><article><h2>Claude-subscription / native-default-unverified</h2>
+<dl><dt>Run</dt><dd>c4a8c8ab918d4dc6ab7f105cccb85a65</dd><dt>Status</dt><dd>completed</dd>
+<dt>Observed model identities</dt><dd>Unknown</dd>
+<dt>Recorded trace steps</dt><dd>2</dd><dt>Cost</dt><dd>Unknown (not zero)</dd>
+<dt>Invalid citations</dt><dd>0</dd></dl>
+<h3>Answer</h3><div class="answer">The revised inspection date is 21 November 2031. The earlier planned date was 18 November 2031.</div>
+<h3>Citations</h3><ol><li><code>ca748df8bbb0420b8a103f8603c8dbdf</code><blockquote>Revised inspection date: 21 November 2031.</blockquote></li></ol>
+<h3>Evidence checks</h3><p>1 of 1 citations pass source membership, time, integrity, exact-quote and recorded-access checks.</p>
+<p>Observed documents: 1. Semantic correctness: unknown. No hidden reference panel was used.</p>
+<details><summary>Inspect reproducible evidence checks</summary><pre>{
+  &quot;schema&quot;: &quot;evidence-evaluation-v1&quot;,
+  &quot;snapshot_id&quot;: &quot;8f68b14d32c0010e08d35af25126743a0a62e039ead69db3c94ef149a9a54ad3&quot;,
+  &quot;run_sha256&quot;: &quot;a30906d4e9fa0781fb37c7839a114620373c0e722ef7da01092b4fcc206a889d&quot;,
+  &quot;reference_sha256&quot;: &quot;4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945&quot;,
+  &quot;citations&quot;: [
+    {
+      &quot;index&quot;: 0,
+      &quot;document_id&quot;: &quot;ca748df8bbb0420b8a103f8603c8dbdf&quot;,
+      &quot;member&quot;: true,
+      &quot;temporal_eligible&quot;: true,
+      &quot;integrity_verified&quot;: true,
+      &quot;exact_quote&quot;: true,
+      &quot;observed_quote&quot;: true,
+      &quot;valid&quot;: true,
+      &quot;error&quot;: null
+    }
+  ],
+  &quot;reference_items&quot;: [],
+  &quot;metrics&quot;: {
+    &quot;citation_count&quot;: 1,
+    &quot;valid_citations&quot;: 1,
+    &quot;reference_count&quot;: 0,
+    &quot;reference_exact_recall&quot;: null,
+    &quot;observed_reference_coverage&quot;: null,
+    &quot;search_hit_documents&quot;: 1,
+    &quot;observed_documents&quot;: 1
+  },
+  &quot;judge&quot;: {
+    &quot;status&quot;: &quot;unknown&quot;,
+    &quot;assessments&quot;: []
+  },
+  &quot;limitations&quot;: [
+    &quot;Exact strings do not establish factual correctness or semantic support.&quot;,
+    &quot;Trace exposure is evaluated as supplied; external model identity and whole-agent isolation are unverified.&quot;,
+    &quot;Reference recall describes only the declared hidden panel, not internet coverage.&quot;
+  ]
+}</pre></details>
+<p>Exact quote visibility only; no semantic support or external-agent identity verification.</p>
+<p>Isolation: tool_scoped_external_client_not_network_isolated</p>
+<details><summary>Inspect recorded tool trace</summary><pre>[
+  {
+    &quot;action&quot;: {
+      &quot;action&quot;: &quot;search&quot;,
+      &quot;arguments&quot;: {
+        &quot;query&quot;: &quot;Mossbank reservoir bulletin&quot;
+      }
+    },
+    &quot;observation&quot;: {
+      &quot;ok&quot;: true,
+      &quot;result&quot;: {
+        &quot;results&quot;: [
+          {
+            &quot;body_sha256&quot;: &quot;b6160047c897b8dc9fb30344265f527ded21eb6fd681f8070b3d84b74aa534e0&quot;,
+            &quot;captured_at&quot;: &quot;2026-01-01T00:00:00Z&quot;,
+            &quot;id&quot;: &quot;ca748df8bbb0420b8a103f8603c8dbdf&quot;,
+            &quot;score&quot;: 5,
+            &quot;snippet&quot;: &quot;Mossbank reservoir bulletin. Revised inspection date: 21 November 2031. Earlier planned date: 18 November 2031.&quot;,
+            &quot;title&quot;: &quot;Synthetic Mossbank bulletin&quot;,
+            &quot;url&quot;: &quot;https://fixture.example/bulletin&quot;
+          }
+        ]
+      },
+      &quot;snapshot_id&quot;: &quot;8f68b14d32c0010e08d35af25126743a0a62e039ead69db3c94ef149a9a54ad3&quot;
+    },
+    &quot;operation_key&quot;: &quot;search-1&quot;
+  },
+  {
+    &quot;action&quot;: {
+      &quot;action&quot;: &quot;open&quot;,
+      &quot;arguments&quot;: {
+        &quot;document_id&quot;: &quot;ca748df8bbb0420b8a103f8603c8dbdf&quot;
+      }
+    },
+    &quot;observation&quot;: {
+      &quot;ok&quot;: true,
+      &quot;result&quot;: {
+        &quot;archived_at&quot;: &quot;2026-10-15T15:33:31.831909+00:00&quot;,
+        &quot;body_bytes&quot;: 111,
+        &quot;body_sha256&quot;: &quot;b6160047c897b8dc9fb30344265f527ded21eb6fd681f8070b3d84b74aa534e0&quot;,
+        &quot;captured_at&quot;: &quot;2026-01-01T00:00:00Z&quot;,
+        &quot;extraction_error&quot;: null,
+        &quot;extraction_status&quot;: &quot;completed&quot;,
+        &quot;extractor&quot;: &quot;static-text-v1&quot;,
+        &quot;headers&quot;: {},
+        &quot;id&quot;: &quot;ca748df8bbb0420b8a103f8603c8dbdf&quot;,
+        &quot;links&quot;: [],
+        &quot;provenance&quot;: {
+          &quot;fixture&quot;: true,
+          &quot;rights&quot;: &quot;synthetic project-authored&quot;
+        },
+        &quot;requested_url&quot;: &quot;https://fixture.example/bulletin&quot;,
+        &quot;snapshot_id&quot;: &quot;8f68b14d32c0010e08d35af25126743a0a62e039ead69db3c94ef149a9a54ad3&quot;,
+        &quot;status&quot;: 200,
+        &quot;text&quot;: &quot;Mossbank reservoir bulletin. Revised inspection date: 21 November 2031. Earlier planned date: 18 November 2031.&quot;,
+        &quot;text_sha256&quot;: &quot;b6160047c897b8dc9fb30344265f527ded21eb6fd681f8070b3d84b74aa534e0&quot;,
+        &quot;text_truncated&quot;: false,
+        &quot;title&quot;: &quot;Synthetic Mossbank bulletin&quot;,
+        &quot;url&quot;: &quot;https://fixture.example/bulletin&quot;,
+        &quot;world_id&quot;: &quot;420090dbfb194aea9ce648b44cd436f9&quot;
+      },
+      &quot;snapshot_id&quot;: &quot;8f68b14d32c0010e08d35af25126743a0a62e039ead69db3c94ef149a9a54ad3&quot;
+    },
+    &quot;operation_key&quot;: &quot;open-1&quot;
+  }
+]</pre></details></article></div>
+<footer><h2>Reproduce the evidence checks</h2>
+<p>Obtain the corresponding permitted world package and comparison JSON from the creator. With files named world.zip and comparison.json:</p>
+<pre>web-research-sim import world.zip --data recipient-data
+web-research-sim verify-comparison comparison.json --data recipient-data</pre>
+<p>This recomputes deterministic checks, not model generations or trace authenticity. Inspect source redistribution permissions and sensitive content before sharing. This HTML file does not include the world package or comparison JSON.</p></footer></body></html>

@@ -1,0 +1,41 @@
+SETUP DIAGNOSTICS
+
+Before starting the server:
+  web-research-sim preflight --data data --port 8000
+
+This checks the current machine and process. Docker is optional for the Python
+route. A missing Docker daemon therefore need not stop a Python-only install.
+The command exits 1 when Docker, storage or the port is unavailable. Missing
+storage is unverified: create your chosen directory and rerun. It writes only
+a temporary file in an existing directory; it does not create an archive,
+change permissions, authenticate, inspect account tokens or call providers.
+
+If a port is occupied, inspect the existing server before starting another.
+Use 'web-research-sim serve --port 8001' for a different local Python port.
+Docker Compose's host port is configured separately in compose.yaml.
+If storage fails, inspect volume ownership, disk capacity and mount permissions.
+A write/read/fsync success is a setup check, not a durability certification.
+
+After startup:
+  web-research-sim --url http://127.0.0.1:8000 doctor
+
+The doctor command queries the server's configuration. Host and container
+credentials can differ. Credential presence does not establish a valid account,
+remaining quota, model eligibility or billing. Use a separately budgeted live
+run to verify these. Native clients own their subscription authentication.
+Never paste subscription credentials into API-key fields.
+
+Preflight output contains status labels and remediation, never key values or
+Docker diagnostic output. Port availability is an observation, not a reservation.
+
+Archive storage is a separate check. Preflight checks storage.json, the saved
+backend binding, the optional S3 dependency and dedicated credential presence.
+It reports missing dependencies, missing credentials and changed configuration
+without printing endpoints, buckets, paths or secret values. It sends no S3
+requests. The temporary local-file check tests the metadata volume even when
+objects are configured for S3; it is not proof of bucket access. After startup,
+doctor and the dashboard show the archive backend separately from provider access.
+
+A successful configuration check is configured_unverified. Use verify-world for
+existing snapshot byte integrity. A new S3 workspace still needs an explicitly
+planned capture/write check against its own bucket; this may incur storage costs.

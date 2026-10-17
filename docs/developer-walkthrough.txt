@@ -1,0 +1,59 @@
+INDEPENDENT DEVELOPER WALKTHROUGH
+
+Purpose
+Test whether a new developer can build a live research world and compare two
+actual LLM runs using the supplied documentation. This is a human usability test,
+not an automated agent exercise. Target three new developers; at least two should
+complete the comparison within 20 minutes after setup. Record failures honestly.
+No walkthrough has been completed merely because this kit exists.
+
+Before the session
+Use a fresh data directory or new Compose project. Record OS, architecture, Docker,
+Python and chosen native client versions. Use your own provider-owned sign-in or
+API credentials. Do not share account tokens, secret values or credential screens.
+Agree on spending outside the test: native subscriptions have their own limits;
+API calls need the explicit allocation and reviewed bounds in docs/costs.txt.
+The test does not authorize a paid plan, purchase or automatic paid fallback.
+
+Use README.md, docs/first-session.txt and the setup docs. Log download time,
+installation work, sign-in time and collection wait separately. Start the timed
+20-minute task after prerequisites, startup and provider setup finish. Do not
+exclude subsequent confusion, errors or missing documentation from task time.
+An observer may record events but must not solve the task or edit the product.
+If help is needed, record it and continue if useful; do not call it unassisted.
+
+Task (use the product and docs; no source-code changes)
+1. Enter a research question of your own in a domain you can assess. Start with
+   a small explicit capture/search/model budget. Do not supply an existing archive.
+2. Use either the hosted API route or a signed-in native client with our MCP
+   tools to perform live search, capture sources and freeze a snapshot.
+3. Inspect a captured original's status and source time. Explain one collection
+   limitation: failures, blocked sources, extraction problems, missing evidence
+   or a discovery limitation. A page count is not evidence of complete coverage.
+4. Complete two actual LLM research runs on exactly that snapshot. Change a
+   prompt, model or strategy and record what changed. Native runs must use session
+   tools so evidence access and submissions are saved. Keep evaluator labels out
+   of the agent's context. Do not claim native clients are wholly isolated.
+5. Compare the saved runs. Find the manifest ID, model labels, source quotes and
+   unknown/known costs. Explain one meaningful difference or lack of difference.
+6. Save the comparison report. If source redistribution is not permitted, do not
+   export source bytes: record that the live world cannot be shared exactly.
+   Separately use a synthetic starter to exercise permitted portable export/import
+   and report-metric verification. Record this extra task outside the 20-minute
+   comparison target; it does not replace the live collection task.
+
+Evidence to retain privately
+Copy docs/walkthrough-record-template.json to your private results directory.
+Record timestamps, commands without secrets, run/snapshot IDs, error codes and
+where you got stuck. Screenshots or recordings are optional and require review
+for secrets and personal information before sharing. Do not include private
+publisher content in a public report. No tester names or email addresses needed.
+Capture each assistance event and exact failure, rather than summarizing it away.
+
+Success interpretation
+A finished comparison requires two saved real model runs on one manifest with
+inspectable evidence, not two mocked responses, login alone or a populated UI.
+An honest insufficient-evidence answer can be useful, but mark whether collection
+produced any usable sources. Finishing after assistance is assisted success.
+Report all three outcomes and elapsed times; never omit an unsuccessful tester.
+Cloud/Linux installation verification and model-route coverage are separate gates.

@@ -1,0 +1,117 @@
+Storage and recovery (development alpha)
+
+The workspace contains content-addressed originals/text/manifests and SQLite
+metadata. Keep both. SQLite uses WAL; copy a stopped workspace or use a consistent
+backup method rather than copying a live database file alone.
+
+The default network capture adapter commits complete response bytes and a
+minimal original-response receipt before parsing. An extractor crash can leave
+an unprocessed receipt, which is evidence of retained bytes, not a finished page.
+Such receipts are not automatically retried or admitted to frozen search.
+Capture records refer to their original receipt; a mismatched body/world is refused.
+Custom capture adapters must implement their own equivalent preservation contract.
+Incomplete or oversized network transfers are still failures, not full originals.
+
+Pre-call reservations survive errors and restarts. Missing acknowledgment is not
+permission to retry a provider operation. Request keys recover existing jobs;
+session keys recover local tool results. Neither resets accumulated usage.
+
+Workspace metadata schema is now version 2. Opening a supported version 1
+workspace upgrades metadata in one SQLite transaction and records the migration.
+Frozen manifests and object bytes are not rewritten; snapshot IDs stay unchanged.
+Version 2 is a compatibility fence: older builds that require version 1 refuse
+to open it instead of ignoring the selected object backend. Unknown versions
+and unrecognized databases are rejected before any table creation. Failed DDL
+rolls back; concurrent opens cannot duplicate the migration receipt.
+
+Before upgrading a workspace, stop all its writers and back up the entire durable
+data volume, plus the referenced object bucket if S3 is used. Keep the old build
+identity with that backup. There is no automatic downgrade. To roll back, stop
+writers and restore a complete compatible backup to a separate data directory;
+never edit schema_version or combine an older database with unrelated objects.
+Do not migrate a running workspace using another process. The initial alpha's
+session/schedule/cost extensions have their own additive tables; frozen world-v1
+and world-v2 formats are independent of the database schema version.
+
+Export a permitted frozen challenge for portable replay;
+challenge exports omit unrelated operational tables and original-receipt rows,
+while preserving the original response bytes referenced by the snapshot.
+
+COLD LOCAL-VOLUME BACKUP AND RESTORE
+For the default local object backend, stop every process that writes the volume.
+With the deployment guide's project name:
+
+  docker compose --project-name research-world stop simulator
+  docker compose --project-name research-world ps -a -q simulator
+
+Record the returned stopped container ID and its exact image identity. Create a
+new private backup directory, then substitute those values below:
+
+  mkdir -m 700 YOUR_NEW_BACKUP_DIRECTORY
+  docker inspect YOUR_STOPPED_CONTAINER --format '{{.Image}}'
+  docker cp YOUR_STOPPED_CONTAINER:/data/. YOUR_NEW_BACKUP_DIRECTORY
+
+Check for other running containers mounting the same volume before copying.
+Retain the entire directory, including SQLite WAL/SHM files if present, objects,
+cost policies and storage configuration. The backup is sensitive operational data;
+it is not a public challenge export. Do not start writers until copying finishes.
+For S3, this procedure copies metadata only: the bucket needs a coordinated backup.
+
+Restore to a new volume, never over the only remaining source. Create a stopped
+container using the recorded compatible image and a fresh named volume, copy the
+directory into /data, then restore ownership to the image's service UID/GID
+(10001:10001 for the current image). A root helper may change ownership only on
+that new volume; run the application as its normal simulator user. Verify every
+saved snapshot with verify-world, compare operational rows and budget counters,
+and inspect interrupted jobs before enabling new external calls. Start offline
+first if checking recovery without new provider submissions. This is a manual
+recovery path; it does not automatically reconcile a provider's uncertain charge.
+
+An actual stopped first-session workspace was copied and restored to a separate
+volume on 15 October 2026: all 10 files matched before opening, preserving two
+captures, two runs, sessions and job records. Snapshot integrity passed. After
+ownership restoration, the normal non-root server started with network disabled
+and returned its saved world through HTTP. This checks local backup fidelity and
+startup, not S3 disaster recovery or another physical host. Receipt:
+docs/validity-study.md (public summary; raw receipt is private) (development evidence, not packaged).
+
+STATIC TABLE EXTRACTION VERSION
+New static captures use static-text-v2. HTML td/th cells receive explicit vertical
+bar separators, including empty cells, and table rows retain line boundaries.
+This prevents adjacent numeric cells from silently becoming a different number.
+Original bytes remain authoritative. This is a readable linearization, not a
+structured table model: rowspan/colspan, nested tables, CSS layout and images
+still require inspection of originals or separately verified rendered capture.
+Existing snapshots and their recorded extractor versions are never rewritten.
+
+ARTIFACT-BEARING SNAPSHOTS (world-v2)
+A capture may include up to 128 artifact descriptors, totaling at most 16 MiB:
+  sha256, bytes, kind (source_asset or derived_dom), url, captured_at
+The referenced bytes must already exist and pass their digest/length checks before
+capture admission. Originals, extracted text and derived DOM remain distinct.
+Replay verifies every referenced artifact; a missing or corrupt asset fails the
+read. A capture whose asset time is after the cutoff is excluded in full.
+
+freeze emits world-v2 when any eligible record has artifacts. Existing artifact-
+free snapshots remain world-v1 and are not rewritten. New readers accept both;
+old readers reject world-v2. An artifact-bearing record in world-v1 is refused.
+Bundle export/import includes and validates the complete referenced object set.
+No executable assets are served to agents or executed by replay. Captured asset
+URLs remain evidence, not permission for a live fallback. Redistribution approval
+covers assets as well as the main page and derived material.
+
+The raw browser transport is one GET response at a time: public-IP validation,
+IP-pinned TLS, no credentials/cookies, no automatic redirect/retry and bounded
+response bytes. Redirect responses are preserved as originals; the controller
+must separately validate any next URL. Its network timeout is per operation;
+the isolated controller must enforce an outer process deadline around DNS,
+network reads and storage callbacks. It is not itself a wall-clock guarantee.
+
+FULL FROZEN-WORLD INTEGRITY CHECK
+Run web-research-sim verify-world SNAPSHOT --data WORKSPACE to verify every
+manifest-bound original, extracted text and asset, including temporal admission
+and declared byte sizes. Exit 0 means these checks passed; exit 1 means failure.
+The JSON lists document IDs and error codes, without source bodies or credentials.
+The check continues across damaged documents to report all detected failures.
+It does not recapture, repair, judge relevance, validate extraction fidelity or
+prove publisher authenticity. An empty valid world can pass byte integrity.

@@ -1,0 +1,48 @@
+Review a collection plan before executing it
+===========================================
+
+The dashboard's default hosted flow is Plan research, then Approve and collect.
+Planning calls your selected LLM once. It reserves that model call and its monetary
+bound before transmission, but makes no search-provider or page-capture request.
+Review the returned directions, exact search queries and collection limits before
+approving. This is a proposal, not evidence or a promise of useful sources.
+
+Plans are durable jobs. GET /api/jobs/PLAN_JOB_ID returns the saved result, which
+contains collection-plan-v1, world/configuration binding, directions, queries,
+the provider-reported model and a digest. The archive retains an immutable copy.
+Approval names that completed job and must match the world, model/search provider,
+model ID and query/page limits. Changed settings require a new plan and another
+explicit planning call. The client cannot replace the saved queries on approval.
+
+CLI example, after creating a world and configuring hosted cost bounds:
+
+  web-research-sim plan WORLD_ID --provider openai --model YOUR_MODEL_ID --search-provider brave --max-queries 3 --max-pages 5 --request-key YOUR_PLAN_KEY --wait
+
+Read the completed job's result. To approve it:
+
+  web-research-sim collect WORLD_ID --plan-job PLAN_JOB_ID --provider openai --model YOUR_MODEL_ID --search-provider brave --max-queries 3 --max-pages 5 --request-key YOUR_APPROVAL_KEY --wait
+
+Retain both request keys and job IDs. After a dropped connection, repeating the
+same request/key observes the original job; it does not restart work. A saved
+plan is bound to a single collection job, even if another approval key is used.
+Inspect failed/interrupted jobs and reserved usage before creating any new plan.
+Approval uses one selection-model call after search, plus the bounded search and
+capture attempts. It does not call the planner again. No results means no selection
+call. Failed calls can still consume reservations and provider charges.
+
+The dashboard clears its selected plan when the world or provider/model settings
+change. After reload, select the world and Review saved plan to restore its exact
+settings without another planning call. Consumed plans show their collection job
+for inspection instead of another approval. Plans using custom query/page limits
+can be reviewed and approved through the CLI with their exact saved settings.
+
+For deliberately unattended work, the existing collect endpoint without
+plan_job_id and configured collection schedules still plan and execute together.
+They are not the interactive review path. Native Codex/Claude clients control
+their own planning and search; ask them to present directions before searching.
+Native subscription usage is outside the server's hosted API monetary cap.
+
+Verification distinguishes controlled adapter tests from real hosted access.
+Offline tests can establish no search/capture before approval, exact plan reuse,
+world/configuration binding and duplicate-submission refusal. They do not establish
+model/search account access, real pricing or a successful hosted collection run.

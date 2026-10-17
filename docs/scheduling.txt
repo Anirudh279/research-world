@@ -1,0 +1,75 @@
+Finite collection schedules
+===========================
+
+The local API can run finite schedules while its process remains running. This
+is a background thread in the single-owner server, not an external scheduler or
+a cloud deployment. Closing the server stops future ticks. Keep the data volume
+and server process available for the desired interval.
+
+A schedule requires an explicit start timestamp, interval, maximum run count,
+collection configuration and stable creation request key. The world's existing
+call budgets still apply. A schedule does not increase budgets, obtain credits,
+or turn request-count limits into dollar caps.
+
+Hosted collection example (model and search calls may be billed):
+
+Create collection-config.json with your chosen available model and providers:
+{
+  "model_provider": "openai",
+  "model": "YOUR_MODEL_ID",
+  "search_provider": "brave",
+  "max_queries": 3,
+  "max_pages": 5
+}
+
+web-research-sim schedule create WORLD_ID --kind collection \
+  --config collection-config.json --interval-seconds 86400 --max-runs 7 \
+  --start-at 2026-11-01T09:00:00+00:00 --request-key MY_STABLE_SCHEDULE_KEY
+
+The timestamp is an example; choose the actual intended start time. Supply API
+credentials to the server environment, never the JSON file. Inspect the returned
+schedule ID. Repeating the same request key observes the original creation;
+changing its bound request is rejected.
+
+web-research-sim schedule list
+web-research-sim schedule list --world WORLD_ID
+web-research-sim schedule status SCHEDULE_ID
+web-research-sim schedule pause SCHEDULE_ID
+web-research-sim schedule resume SCHEDULE_ID
+
+For capture-only revisits, a native-source-config.json file has this shape:
+{
+  "sources": [{"url": "https://example.org/a-source", "query": "original query"}],
+  "native_client": "claude-code"
+}
+Use --kind native_discovered with this file. The client identity is declared,
+not authenticated or independently verified.
+
+The native_discovered kind is capture-only: it revisits explicitly supplied
+source URLs from a native agent's prior research. It does not schedule Claude or
+Codex inference, discover fresh search results, or claim a subscription model was
+run. That native client retains its own authentication and billing relationship.
+
+Safety and recovery
+-------------------
+
+Only one API server may own a data directory. Its exclusive server.lock is acquired
+before startup recovery. Recovery only touches this API scheduler's owner namespace;
+it does not reclassify another runner's slots as stopped. A claimed slot from a
+confirmed prior API owner becomes interrupted and is never automatically sent
+again. Missed/failed slots are not proof of collected evidence.
+
+The scheduler loop runs outside the HTTP event loop. Pausing stops future slots;
+it does not undo or cancel a provider request already in flight. Shutdown stops
+new scheduler ticks and waits for current work to drain before releasing ownership.
+Short thread joins keep the event loop responsive, but completion can still take
+as long as the in-flight request. Do not interpret a slow shutdown as permission
+to start another owner against the same directory.
+
+An unexpected controller exception stops polling and is exposed in GET
+/api/schedules under runner. No blind tick retry occurs after uncertain execution.
+Observe the schedule's durable receipts and actual owner before recovery.
+
+No successful 24-hour soak or live-provider reliability result is implied by this
+feature or by its controlled API tests. Full agent/network isolation is a separate
+verification requirement.

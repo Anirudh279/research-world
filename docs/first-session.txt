@@ -1,0 +1,118 @@
+Your first Research World session
+=================================
+
+Open the dashboard served by your Research World installation. For the default
+local server this is http://127.0.0.1:8000. Keep the server running while you work.
+
+Connect to your workspace
+-------------------------
+
+A protected workspace asks for its access token. Paste the Research World token
+and choose Connect. This is NOT an OpenAI, Claude or search-provider key. The
+page sends it only to its own workspace API as an Authorization header. It keeps
+the token in tab memory, not localStorage, sessionStorage or cookies. The input
+clears after submission. Disconnect or reload clears the in-memory token; you
+must connect again. Existing server jobs continue independently of the browser.
+Use HTTPS for a remote workspace.
+
+Choose a research path
+----------------------
+
+API keys: Add one model provider key (OpenAI or Anthropic) and one search key
+(Brave or Scrappa) to the server's private environment, then restart it. Enter a
+question and call budgets in the dashboard, choose providers and an available
+model ID, then choose Plan research. Review the saved directions and exact queries
+before choosing Approve and collect. Planning uses one model call; search and
+capture start only after approval. API billing is separate from chat subscriptions.
+Credential presence is not a successful connectivity test. Requests can be billed
+even if they fail; the dashboard's call limits are not dollar caps. Hosted calls
+also require an explicit monetary allocation and reviewed, current price bounds;
+missing controls refuse transmission. See docs/costs.txt.
+
+Subscription: Keep Codex or Claude Code signed in through its own supported
+account workflow. Register the local Research World MCP bridge with that client;
+the dashboard's “Connect your native agent” section gives the commands. Configure
+the bridge's private WR_SIM_URL and WR_SIM_TOKEN environment if needed. Do not
+copy or proxy subscription credentials into Research World.
+
+Ask the native agent to create a world, use its own search, save source URLs with
+live_capture_discovered, freeze the evidence, then use a native research session
+to read and submit an answer with exact quotes. This avoids our hosted planning
+and search calls; native plan limits and any native charges still apply. Refresh
+Worlds in the dashboard to see its saved captures and runs.
+
+Actual Codex and Claude Code account-authenticated runs exercised native search,
+capture, freeze, session tools and submission. The Claude live smoke run saved
+one of two attempted sources; the failed source remains a coverage gap. A further
+live question had no usable archived sources and did not pass its collection
+gate. These results establish bounded working paths, not universal account/plan
+compatibility or complete live collection coverage. Hosted OpenAI and Anthropic
+API routes and the two integrated search-provider routes still need live
+verification. See docs/mcp.txt and docs/provider-capabilities.txt for the paths
+and their limits. Browser-only chat products cannot launch this local bridge.
+
+Compare fairly
+--------------
+
+Freeze after collection completes. Run two agents against the same snapshot.
+For a native agent, pin the bridge to the snapshot and use default frozen mode;
+use session tools so its evidence access is recorded. Disable other browsing
+separately. Research World does not isolate a native agent's whole process,
+verify its declared model name, or remove knowledge it learned before the run.
+
+Select the saved runs in the dashboard and compare. Exact quote checks show that
+quoted text was visible to that session. They do not establish semantic support
+or a correct answer. Unknown costs are not zero.
+
+Verification note
+-----------------
+
+The dashboard's authentication transport is covered by local API and injected
+JavaScript tests. An early browser attempt on October 15, 2026 failed because the
+available automation bridge could not load its request policy. Later fresh Chrome
+checks did run against controlled local fixtures: the cost panel, starter install
+and default snapshot selection, saved source failures, partial extraction state,
+and evidence-check display were exercised at a 390 by 844 viewport. Their receipts
+record no page errors or horizontal overflow; cost/starter screenshots were
+visually reviewed. Starter installation submitted no paid job, and the diagnostics
+check made no POST requests. These are bounded automated checks, not independent
+human usability evidence or a live LLM run. See docs/rendered-capture.txt
+for distributable browser/container verification context.
+
+Start with synthetic evidence
+-----------------------------
+
+The dashboard's ready-made worlds let you begin without collecting pages first.
+Connect, then choose the river, energy or civic starter. These are self-authored
+fictional evidence sets, clearly labeled synthetic. Installation creates a new
+world and three dated snapshots, selects January 2 for you, and makes no LLM,
+search-provider or live-page requests. It is not a model test by itself.
+
+Choose your configured model and press Run research agent to start actual LLM
+reasoning. Hosted calls require your API credentials and spending allocation;
+no paid job starts automatically. Alternatively use your native agent with the
+selected snapshot ID. Compare another real run on that same snapshot. Later
+snapshot evidence must not be used to answer the January 2 question.
+
+Repeated starter installation creates a separate world. If the browser loses its
+connection during installation, inspect Worlds before clicking Install again.
+These controlled starters do not replace the live collection verification gates,
+and this guided flow is not evidence of independent human usability testing.
+
+Understand collection gaps
+-------------------------
+
+The capture table shows HTTP status and extraction status separately. A saved
+original does not mean its contents were usable or complete. For example, an
+HTTP 403 page can be archived while still being a blocked source; a PDF can be
+saved while text extraction fails. Older captures without extraction metadata
+are labeled unknown rather than assumed successful.
+
+After collection, Latest collection gaps lists failed URLs and extraction gaps
+from that job. Recorded source failures are also recovered from the world's
+saved events when available. Inspect these before retrying; no repair or retry
+is started automatically by the dashboard.
+
+A saved run's View evidence checks button loads deterministic checks for that
+actual run and snapshot. These checks do not establish semantic support or
+factual correctness, and they are not an LLM judge result.

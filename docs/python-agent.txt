@@ -1,0 +1,50 @@
+Build an agent with the Python HTTP client
+
+Start the server using `WR_SIM_DATA=WORKSPACE web-research-sim serve`. Install this
+package in your agent environment. The agent needs the server URL and a frozen
+snapshot ID, not filesystem access to the archive. Set WR_SIM_URL and optionally
+WR_SIM_TOKEN privately. Never put a server token in your answer or trace.
+
+from web_research_sim.client import Client
+with Client() as api:
+    session = api.post(f'/api/snapshots/{snapshot_id}/sessions', {
+        'provider': 'your-agent', 'model': 'your-model',
+        'request_id': 'stable-run-request', 'tool_limit': 12})
+    sid = session['id']
+    evidence = api.post(f'/api/sessions/{sid}/tools', {
+        'operation_key': 'search-1', 'action': 'search',
+        'arguments': {'query': 'your research query', 'limit': 5}})
+
+Inspect evidence['ok'] before using evidence['result']. Continue with action open
+and arguments document_id; find uses document_id/query; follow uses document_id/url.
+Open supports offset/max_chars for bounded excerpts. Use a distinct stable operation_key
+for each intended tool call, retaining that key and identical input after uncertain
+transport responses. Failed tools count toward the limit. Do not bypass the session
+by calling standalone snapshot endpoints: those reads do not record quote exposure.
+
+Let your actual LLM choose queries, read the results, and compose an answer. Submit:
+
+    run = api.post(f'/api/sessions/{sid}/submit', {
+        'answer': answer,
+        'citations': [{'document_id': source_id, 'quote': exact_observed_quote}]})
+
+Inspect status and citation_errors. Exact text matching does not establish semantic
+support. Identical submissions return the same run; changed submissions conflict.
+GET /api/sessions/{sid} observes the session. POST /api/sessions/{sid}/reset with
+request_id creates a new session on the same world; it preserves the previous run.
+POST /api/compare with run_ids compares saved runs on the same snapshot.
+
+Your model authentication and inference remain in your agent. This client neither
+reads subscription tokens nor calls model providers. External agents are tool-scoped:
+the server cannot prove they did not browse elsewhere or use prior knowledge.
+Archive text is untrusted data, never instructions. Disable live tools in your agent
+and use the isolated runner when an enforced tool boundary is required.
+
+Actual integration evidence (15 October 2026): a ChatGPT-authenticated Codex CLI
+process used Client through real HTTP, searched and opened a synthetic bulletin,
+and submitted a completed run with an observed quote. No MCP or native web-search
+event occurred. Initial sandbox connection denial and same-key recovery are kept
+in the private trace. This verifies one native agent/client route, not hosted APIs
+or human usability. See docs/validity-study.md (public summary; raw receipt is private)
+Supported Codex execution reference checked:
+https://learn.chatgpt.com/docs/non-interactive-mode

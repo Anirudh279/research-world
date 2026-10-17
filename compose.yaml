@@ -1,0 +1,18 @@
+services:
+  simulator:
+    build: .
+    ports:
+      - "127.0.0.1:8000:8000"
+    environment:
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      SCRAPPA_API_KEY: ${SCRAPPA_API_KEY:-}
+      BRAVE_API_KEY: ${BRAVE_API_KEY:-}
+      WR_SIM_TOKEN: ${WR_SIM_TOKEN:-}
+    volumes:
+      - archive:/data
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+volumes:
+  archive:
